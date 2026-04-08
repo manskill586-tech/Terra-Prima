@@ -1,0 +1,9 @@
+﻿/build/
+/.vs/
+/.vscode/
+CMakeFiles/
+CMakeCache.txt
+*.user
+*.suo
+*.log
+*.tmp
