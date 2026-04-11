@@ -21,6 +21,11 @@ void WorldClock::Step(double stepSeconds) {
                         std::memory_order_relaxed);
 }
 
+void WorldClock::Reset(double simTimeSeconds, double realTimeSeconds) {
+  simTimeSeconds_.store(simTimeSeconds, std::memory_order_relaxed);
+  realTimeSeconds_.store(realTimeSeconds, std::memory_order_relaxed);
+}
+
 void WorldClock::Tick(double realDeltaSeconds) {
   if (realDeltaSeconds < 0.0) {
     return;

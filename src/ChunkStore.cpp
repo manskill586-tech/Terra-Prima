@@ -45,6 +45,18 @@ std::unordered_map<ChunkKey, sim::FarTileData, ChunkKeyHasher>& ChunkStore::FarT
   return farTiles_;
 }
 
+const std::unordered_set<ChunkKey, ChunkKeyHasher>& ChunkStore::ActiveNear() const {
+  return activeNear_;
+}
+
+const std::unordered_set<ChunkKey, ChunkKeyHasher>& ChunkStore::ActiveMid() const {
+  return activeMid_;
+}
+
+const std::unordered_set<ChunkKey, ChunkKeyHasher>& ChunkStore::ActiveFar() const {
+  return activeFar_;
+}
+
 void ChunkStore::ActivateTier(const ChunkKey& center, int radius,
                               std::unordered_set<ChunkKey, ChunkKeyHasher>& activeSet,
                               int targetLod) {

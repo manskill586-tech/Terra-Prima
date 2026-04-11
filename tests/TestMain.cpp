@@ -13,10 +13,12 @@ void Expect(bool cond, const char* expr, const char* file, int line) {
 
 void RunSimSchedulerTests();
 void RunChunkStoreTests();
+void RunSnapshotTests();
 
 int main() {
   RunSimSchedulerTests();
   RunChunkStoreTests();
+  RunSnapshotTests();
 
   if (g_failures == 0) {
     std::cout << "All tests passed.\n";

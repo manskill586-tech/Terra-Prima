@@ -7,6 +7,7 @@
 #include <functional>
 #include <mutex>
 #include <thread>
+#include <memory>
 #include <vector>
 
 namespace terra::job {
@@ -39,7 +40,7 @@ private:
   bool TryPopGlobal(Task& outTask);
   bool TrySteal(std::size_t thiefIndex, Task& outTask);
 
-  std::vector<Worker> workers_;
+  std::vector<std::unique_ptr<Worker>> workers_;
   std::deque<Task> globalQueue_;
   std::mutex globalMutex_;
   std::condition_variable cv_;

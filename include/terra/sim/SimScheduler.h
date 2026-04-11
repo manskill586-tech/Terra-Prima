@@ -36,6 +36,7 @@ public:
 
   PlanResult Plan(double simTimeSec, double frameBudgetMs);
   void OnTierUpdated(TierId id, double simTimeSec, double costMs);
+  void UpdateIntervals(double frameBudgetMs);
 
 private:
   TierConfig& Config(TierId id);

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "terra/chem/ChemState.h"
+
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -11,6 +13,9 @@ struct NearChunkData {
   float humidity{0.5f};
   std::array<float, 4> concentrations{{0.25f, 0.25f, 0.25f, 0.25f}};
   uint32_t lastUpdatedStep{0};
+  double lastSimTime{0.0};
+  bool dirty{true};
+  chem::ChemState chem{};
 };
 
 struct MidChunkData {
@@ -18,6 +23,9 @@ struct MidChunkData {
   float humidity{0.4f};
   float biomass{0.1f};
   uint32_t lastUpdatedStep{0};
+  double lastSimTime{0.0};
+  bool dirty{true};
+  chem::ChemState chem{};
 };
 
 struct FarTileData {
@@ -25,6 +33,9 @@ struct FarTileData {
   float co2{0.0004f};
   float population{0.0f};
   uint32_t lastUpdatedStep{0};
+  double lastSimTime{0.0};
+  bool dirty{true};
+  chem::ChemState chem{};
 };
 
 } // namespace terra::sim

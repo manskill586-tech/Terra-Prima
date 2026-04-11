@@ -1,0 +1,19 @@
+import os
+from SCons.Script import DefaultEnvironment, SConscript
+
+env = DefaultEnvironment()
+
+# Include shared headers (sim_state.h)
+env.Append(CPPPATH=[
+    "#",
+    "#/../../../",
+])
+
+# Integrate godot-cpp (submodule expected at addons/godot-cpp)
+godot_cpp = SConscript("../godot-cpp/SConstruct", exports={"env": env})
+
+sources = []
+env.add_source_files(sources, "src/*.cpp")
+
+target = "bin/libgenesis_bridge{}{}".format(env["suffix"], env["SHLIBSUFFIX"])
+env.SharedLibrary(target=target, source=sources)

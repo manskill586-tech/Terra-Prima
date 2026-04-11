@@ -73,7 +73,7 @@ PlanResult SimScheduler::Plan(double simTimeSec, double frameBudgetMs) {
   TierConfig* mid = &mid_;
   TierConfig* far = &far_;
 
-  if (near->enabled && simTimeSec + 1e-6 >= near->nextTimeSec) {
+  if (near->enabled) {
     includeTier(near);
   }
 
@@ -107,6 +107,28 @@ void SimScheduler::OnTierUpdated(TierId id, double simTimeSec, double costMs) {
   auto& tier = Config(id);
   tier.lastCostMs = std::max(0.01, costMs);
   tier.nextTimeSec = simTimeSec + tier.intervalSec;
+}
+
+void SimScheduler::UpdateIntervals(double frameBudgetMs) {
+  if (frameBudgetMs <= 0.0) {
+    return;
+  }
+  const double estimated = std::max(0.1, near_.lastCostMs) +
+                           std::max(0.1, mid_.lastCostMs) +
+                           std::max(0.1, far_.lastCostMs);
+  if (estimated > frameBudgetMs) {
+    for (auto* tier : {&far_, &mid_}) {
+      if (tier->enabled && tier->intervalSec < tier->maxIntervalSec) {
+        tier->intervalSec = std::min(tier->maxIntervalSec, tier->intervalSec * 1.2);
+      }
+    }
+  } else if (estimated < frameBudgetMs * 0.5) {
+    for (auto* tier : {&mid_, &far_}) {
+      if (tier->enabled && tier->intervalSec > tier->minIntervalSec) {
+        tier->intervalSec = std::max(tier->minIntervalSec, tier->intervalSec * 0.9);
+      }
+    }
+  }
 }
 
 TierConfig& SimScheduler::Config(TierId id) {

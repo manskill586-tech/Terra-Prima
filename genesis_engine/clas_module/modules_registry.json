@@ -1,0 +1,128 @@
+﻿[
+  {
+    "name": "observer",
+    "title": "Observer",
+    "role": "Player behavior patterns and anomalies.",
+    "triggers": ["session_start", "input_burst", "repeated_errors"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 120, "max_cpu_ms": 5}
+  },
+  {
+    "name": "mentor",
+    "title": "Mentor",
+    "role": "Onboarding and contextual hints.",
+    "triggers": ["new_player", "tutorial_step", "stuck_state"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 90, "max_cpu_ms": 5}
+  },
+  {
+    "name": "overlord_sim",
+    "title": "Overlord-Sim",
+    "role": "Planetary-scale events and long cycles.",
+    "triggers": ["global_threshold", "epoch_change", "scheduled_check"],
+    "budget": {"ram_mb": 128, "idle_timeout_s": 600, "max_cpu_ms": 8}
+  },
+  {
+    "name": "translator",
+    "title": "Translator",
+    "role": "Dialogue and interpretation with creatures.",
+    "triggers": ["dialog_request", "contact_event"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 120, "max_cpu_ms": 6}
+  },
+  {
+    "name": "chronicler",
+    "title": "Chronicler",
+    "role": "World history and event journal.",
+    "triggers": ["significant_event", "milestone"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 300, "max_cpu_ms": 4}
+  },
+  {
+    "name": "scientist",
+    "title": "Scientist",
+    "role": "Cross-domain science analysis.",
+    "triggers": ["analysis_request", "anomaly_detected"],
+    "budget": {"ram_mb": 128, "idle_timeout_s": 180, "max_cpu_ms": 8}
+  },
+  {
+    "name": "analyst",
+    "title": "Analyst",
+    "role": "World data analytics and trends.",
+    "triggers": ["stats_request", "metric_shift"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 180, "max_cpu_ms": 6}
+  },
+  {
+    "name": "biologist",
+    "title": "Biologist",
+    "role": "Organisms and population dynamics.",
+    "triggers": ["biomass_change", "population_instability"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 240, "max_cpu_ms": 6}
+  },
+  {
+    "name": "physicist",
+    "title": "Physicist",
+    "role": "Physics validation and anomaly checks.",
+    "triggers": ["physics_anomaly", "model_conflict"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 240, "max_cpu_ms": 6}
+  },
+  {
+    "name": "geographer",
+    "title": "Geographer",
+    "role": "Landscapes, biomes, spatial patterns.",
+    "triggers": ["terrain_change", "biome_shift"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 300, "max_cpu_ms": 6}
+  },
+  {
+    "name": "geologist",
+    "title": "Geologist",
+    "role": "Subsurface structures and resources.",
+    "triggers": ["geology_event", "resource_request"],
+    "budget": {"ram_mb": 96, "idle_timeout_s": 300, "max_cpu_ms": 6}
+  },
+  {
+    "name": "astronomer",
+    "title": "Astronomer",
+    "role": "Celestial mechanics and long-term cycles.",
+    "triggers": ["calendar_event", "orbit_update"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 600, "max_cpu_ms": 4}
+  },
+  {
+    "name": "chemist",
+    "title": "Chemist",
+    "role": "Chemistry, pH, redox, phase transitions.",
+    "triggers": ["reaction_spike", "chem_threshold"],
+    "budget": {"ram_mb": 128, "idle_timeout_s": 180, "max_cpu_ms": 8}
+  },
+  {
+    "name": "climatologist",
+    "title": "Climatologist",
+    "role": "Climate and atmospheric cycles.",
+    "triggers": ["temperature_extreme", "precip_change"],
+    "budget": {"ram_mb": 128, "idle_timeout_s": 300, "max_cpu_ms": 6}
+  },
+  {
+    "name": "ecologist",
+    "title": "Ecologist",
+    "role": "Ecosystem balance and resilience.",
+    "triggers": ["ecosystem_collapse", "trophic_shift"],
+    "budget": {"ram_mb": 128, "idle_timeout_s": 300, "max_cpu_ms": 6}
+  },
+  {
+    "name": "archivist",
+    "title": "Archivist",
+    "role": "Knowledge storage and summaries.",
+    "triggers": ["summary_ready", "milestone"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 300, "max_cpu_ms": 3}
+  },
+  {
+    "name": "optimizer",
+    "title": "Optimizer",
+    "role": "Performance, budgets, LOD health.",
+    "triggers": ["budget_exceeded", "fps_drop"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 120, "max_cpu_ms": 4}
+  },
+  {
+    "name": "engineer",
+    "title": "Engineer",
+    "role": "Pipeline diagnostics and developer hints.",
+    "triggers": ["error_event", "data_inconsistency"],
+    "budget": {"ram_mb": 64, "idle_timeout_s": 120, "max_cpu_ms": 4}
+  }
+]

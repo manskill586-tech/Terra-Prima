@@ -30,3 +30,10 @@ ctest --test-dir build
 ## Статус
 
 MVP-каркас: LOD-планировщик, хранение чанков, сим-тайминг, Job System, снапшоты (заглушка), демо-цикл.
+
+
+
+cmake -S genesis_engine -B genesis_engine/build
+cmake --build genesis_engine/build --config Release
+genesis_engine\build\Release\genesis_sim.exe
+genesis_engine\build\Release\shm_reader.exe

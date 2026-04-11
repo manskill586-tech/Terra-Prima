@@ -10,6 +10,7 @@ public:
   void SetTimeScale(double scale);
   void Pause(bool paused);
   void Step(double stepSeconds);
+  void Reset(double simTimeSeconds, double realTimeSeconds = 0.0);
 
   void Tick(double realDeltaSeconds);
 

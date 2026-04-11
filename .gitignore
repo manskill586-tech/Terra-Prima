@@ -1,4 +1,5 @@
 ﻿/build/
+/genesis_engine/build/
 /.vs/
 /.vscode/
 CMakeFiles/
@@ -7,3 +8,8 @@ CMakeCache.txt
 *.suo
 *.log
 *.tmp
+snapshot_test.*
+snapshot.tpra
+data/elements/chemdb.bin
+/genesis_engine/renderer/.godot/
+/genesis_engine/renderer/addons/genesis_bridge/bin/

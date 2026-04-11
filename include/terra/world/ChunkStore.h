@@ -38,6 +38,10 @@ public:
   std::unordered_map<ChunkKey, sim::MidChunkData, ChunkKeyHasher>& MidChunks();
   std::unordered_map<ChunkKey, sim::FarTileData, ChunkKeyHasher>& FarTiles();
 
+  const std::unordered_set<ChunkKey, ChunkKeyHasher>& ActiveNear() const;
+  const std::unordered_set<ChunkKey, ChunkKeyHasher>& ActiveMid() const;
+  const std::unordered_set<ChunkKey, ChunkKeyHasher>& ActiveFar() const;
+
 private:
   void ActivateTier(const ChunkKey& center, int radius,
                     std::unordered_set<ChunkKey, ChunkKeyHasher>& activeSet,

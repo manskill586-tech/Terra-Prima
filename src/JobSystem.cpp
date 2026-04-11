@@ -13,9 +13,10 @@ JobSystem::JobSystem(std::size_t workerCount) {
   if (workerCount == 0) {
     workerCount = std::max<std::size_t>(1, std::thread::hardware_concurrency());
   }
-  workers_.resize(workerCount);
+  workers_.reserve(workerCount);
   for (std::size_t i = 0; i < workerCount; ++i) {
-    workers_[i].thread = std::thread([this, i]() { WorkerLoop(i); });
+    workers_.emplace_back(std::make_unique<Worker>());
+    workers_[i]->thread = std::thread([this, i]() { WorkerLoop(i); });
   }
 }
 
@@ -23,8 +24,8 @@ JobSystem::~JobSystem() {
   stop_.store(true, std::memory_order_relaxed);
   cv_.notify_all();
   for (auto& worker : workers_) {
-    if (worker.thread.joinable()) {
-      worker.thread.join();
+    if (worker && worker->thread.joinable()) {
+      worker->thread.join();
     }
   }
 }
@@ -37,7 +38,7 @@ void JobSystem::Enqueue(Task task) {
 
   const int workerIndex = g_workerIndex;
   if (workerIndex >= 0 && static_cast<std::size_t>(workerIndex) < workers_.size()) {
-    auto& local = workers_[static_cast<std::size_t>(workerIndex)];
+    auto& local = *workers_[static_cast<std::size_t>(workerIndex)];
     {
       std::lock_guard<std::mutex> lock(local.localMutex);
       local.localQueue.push_front(std::move(task));
@@ -85,7 +86,7 @@ void JobSystem::WorkerLoop(std::size_t index) {
 }
 
 bool JobSystem::TryPopLocal(std::size_t index, Task& outTask) {
-  auto& local = workers_[index];
+  auto& local = *workers_[index];
   std::lock_guard<std::mutex> lock(local.localMutex);
   if (local.localQueue.empty()) {
     return false;
@@ -112,7 +113,7 @@ bool JobSystem::TrySteal(std::size_t thiefIndex, Task& outTask) {
     if (victimIndex == thiefIndex) {
       continue;
     }
-    auto& victim = workers_[victimIndex];
+    auto& victim = *workers_[victimIndex];
     std::lock_guard<std::mutex> lock(victim.localMutex);
     if (victim.localQueue.empty()) {
       continue;
