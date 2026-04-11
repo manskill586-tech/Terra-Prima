@@ -1,0 +1,3 @@
+[submodule "genesis_engine/renderer/addons/godot-cpp"]
+	path = genesis_engine/renderer/addons/godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
