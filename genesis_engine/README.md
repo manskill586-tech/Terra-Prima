@@ -42,6 +42,34 @@ genesis_engine\build\Release\genesis_sim.exe --particles 50000 --fps 60
 
 You should see moving particles and a UI panel with sim time + particle count.
 
+## Snapshot / Delta
+Save a snapshot after a fixed number of steps:
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --steps 200 --save snapshot.bin
+```
+
+Load a snapshot:
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --load snapshot.bin --steps 100
+```
+
+Create a delta from a base snapshot:
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --delta-from base.bin --steps 100 --delta-out delta.bin
+```
+
+## Chemistry Options
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --chem-root ..\\data\\elements --chem-cache ..\\data\\elements\\chemdb.bin
+genesis_engine\build\Release\genesis_sim.exe --chem-rebuild
+genesis_engine\build\Release\genesis_sim.exe --chem-seed 8 --chem-heat-scale 1e-5
+```
+
+## Near Particles
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --near-particles 50000 --particle-from-chem
+```
+
 ## SHM Name Override
 Default SHM name is `GenesisSim`. To override:
 ```powershell

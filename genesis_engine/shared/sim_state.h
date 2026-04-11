@@ -46,6 +46,7 @@ struct ChunkData {
   uint32_t reaction_count{0};
   float temperature{0.0f};
   float pressure{0.0f};
+  float humidity{0.0f};
   float concentrations[GENESIS_MAX_MOLECULE_TYPES]{};
   uint8_t lod_level{0}; // 0=Near,1=Mid,2=Far
 };
