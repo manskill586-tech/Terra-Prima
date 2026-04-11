@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpdvi4287chuj"]
+[gd_scene load_steps=3 format=3 uid="uid://cpdvi4287chuj"]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui.tscn" id="2"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="UI" parent="UILayer" instance=ExtResource("2")]

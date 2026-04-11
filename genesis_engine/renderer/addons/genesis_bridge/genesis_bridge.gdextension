@@ -1,8 +1,0 @@
-[configuration]
-entry_symbol = "genesis_bridge_init"
-compatibility_minimum = "4.2"
-compatibility_maximum = "4.3"
-
-[libraries]
-windows.debug.x86_64 = "res://addons/genesis_bridge/bin/libgenesis_bridge.windows.template_debug.x86_64.dll"
-windows.release.x86_64 = "res://addons/genesis_bridge/bin/libgenesis_bridge.windows.template_release.x86_64.dll"

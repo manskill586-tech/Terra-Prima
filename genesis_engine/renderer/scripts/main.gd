@@ -2,6 +2,8 @@ extends Node3D
 
 const MockBridge = preload("res://scripts/mock_bridge.gd")
 
+@onready var ui = $UILayer/UI
+
 var bridge
 var polling := true
 var show_particles := true
@@ -14,12 +16,6 @@ var fps_accum := 0.0
 
 var multimesh_instance: MultiMeshInstance3D
 var multimesh: MultiMesh
-var status_label: Label
-var stats_label: Label
-var fps_label: Label
-var mode_label: Label
-var toggle_button: Button
-var particles_button: Button
 
 var cam_pivot: Node3D
 var camera: Camera3D
@@ -39,7 +35,13 @@ func _ready() -> void:
 		bridge = MockBridge.new()
 		using_mock = true
 	bridge.open(shm_name)
-	mode_label.text = using_mock ? "Mode: MOCK" : "Mode: SHM"
+	ui.set_mode(using_mock ? "MOCK" : "SHM")
+	ui.set_polling(polling)
+	ui.set_particles_visible(show_particles)
+	ui.set_status((using_mock ? "MOCK" : "SHM") + ": connecting...")
+	ui.toggle_polling.connect(_on_toggle_polling)
+	ui.toggle_particles.connect(_on_toggle_particles)
+	ui.reset_camera.connect(_on_reset_camera)
 
 func _setup_scene() -> void:
 	multimesh_instance = MultiMeshInstance3D.new()
@@ -64,46 +66,6 @@ func _setup_scene() -> void:
 	light.rotation_degrees = Vector3(-40, 30, 0)
 	add_child(light)
 
-	var ui_layer := CanvasLayer.new()
-	add_child(ui_layer)
-	var panel := PanelContainer.new()
-	panel.position = Vector2(10, 10)
-	panel.custom_minimum_size = Vector2(260, 130)
-	ui_layer.add_child(panel)
-	var vbox := VBoxContainer.new()
-	panel.add_child(vbox)
-
-	status_label = Label.new()
-	status_label.text = "SHM: connecting..."
-	vbox.add_child(status_label)
-
-	stats_label = Label.new()
-	stats_label.text = "Particles: 0"
-	vbox.add_child(stats_label)
-
-	fps_label = Label.new()
-	fps_label.text = "FPS: 0"
-	vbox.add_child(fps_label)
-
-	mode_label = Label.new()
-	mode_label.text = "Mode: SHM"
-	vbox.add_child(mode_label)
-
-	toggle_button = Button.new()
-	toggle_button.text = "Stop"
-	toggle_button.pressed.connect(_on_toggle_polling)
-	vbox.add_child(toggle_button)
-
-	particles_button = Button.new()
-	particles_button.text = "Hide Particles"
-	particles_button.pressed.connect(_on_toggle_particles)
-	vbox.add_child(particles_button)
-
-	var reset_button := Button.new()
-	reset_button.text = "Reset Camera"
-	reset_button.pressed.connect(_on_reset_camera)
-	vbox.add_child(reset_button)
-
 	_update_camera()
 
 func _process(delta: float) -> void:
@@ -118,19 +80,19 @@ func _process(delta: float) -> void:
 	else:
 		last_update_age += delta
 		if bridge.is_connected():
-			status_label.text = (using_mock ? "MOCK" : "SHM") + ": connected (stale %.1fs)" % last_update_age
+			ui.set_status((using_mock ? "MOCK" : "SHM") + ": connected (stale %.1fs)" % last_update_age)
 		else:
-			status_label.text = (using_mock ? "MOCK" : "SHM") + ": disconnected"
+			ui.set_status((using_mock ? "MOCK" : "SHM") + ": disconnected")
 
 	fps_accum += delta
 	if fps_accum >= 0.25:
-		fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
+		ui.set_fps(Engine.get_frames_per_second())
 		fps_accum = 0.0
 
 func _update_from_bridge() -> void:
 	var count := bridge.get_particle_count()
-	status_label.text = bridge.is_connected() ? ((using_mock ? "MOCK" : "SHM") + ": connected") : ((using_mock ? "MOCK" : "SHM") + ": disconnected")
-	stats_label.text = "Particles: %d  Time: %.2f s" % [count, bridge.get_sim_time_seconds()]
+	ui.set_status(bridge.is_connected() ? ((using_mock ? "MOCK" : "SHM") + ": connected") : ((using_mock ? "MOCK" : "SHM") + ": disconnected"))
+	ui.set_stats(count, bridge.get_sim_time_seconds())
 
 	if not show_particles:
 		multimesh_instance.visible = false
@@ -166,11 +128,11 @@ func _update_camera() -> void:
 
 func _on_toggle_polling() -> void:
 	polling = not polling
-	toggle_button.text = "Start" if not polling else "Stop"
+	ui.set_polling(polling)
 
 func _on_toggle_particles() -> void:
 	show_particles = not show_particles
-	particles_button.text = "Show Particles" if not show_particles else "Hide Particles"
+	ui.set_particles_visible(show_particles)
 
 func _on_reset_camera() -> void:
 	orbit_distance = 6.0
