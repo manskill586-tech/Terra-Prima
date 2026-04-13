@@ -18,7 +18,68 @@ namespace fs = std::filesystem;
 namespace {
 
 constexpr uint32_t kMagic = 0x4348454D; // CHEM
-constexpr uint32_t kVersion = 1;
+constexpr uint32_t kVersion = 2;
+
+std::string GetString(const nlohmann::json& obj, const char* key, const std::string& defaultValue);
+
+uint32_t PackRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
+  return static_cast<uint32_t>(r) |
+         (static_cast<uint32_t>(g) << 8) |
+         (static_cast<uint32_t>(b) << 16) |
+         (static_cast<uint32_t>(a) << 24);
+}
+
+uint32_t ParseHexColor(const std::string& value) {
+  if (value.empty()) {
+    return 0;
+  }
+  std::string hex = value;
+  if (!hex.empty() && hex[0] == '#') {
+    hex = hex.substr(1);
+  }
+  if (hex.size() == 3) {
+    std::string expanded;
+    expanded.reserve(6);
+    for (char c : hex) {
+      expanded.push_back(c);
+      expanded.push_back(c);
+    }
+    hex = expanded;
+  }
+  if (hex.size() != 6 && hex.size() != 8) {
+    return 0;
+  }
+  auto to_byte = [](const std::string& h, std::size_t offset) -> uint8_t {
+    return static_cast<uint8_t>(std::stoul(h.substr(offset, 2), nullptr, 16));
+  };
+  uint8_t r = to_byte(hex, 0);
+  uint8_t g = to_byte(hex, 2);
+  uint8_t b = to_byte(hex, 4);
+  uint8_t a = 255;
+  if (hex.size() == 8) {
+    a = to_byte(hex, 6);
+  }
+  return PackRGBA(r, g, b, a);
+}
+
+uint32_t PickElementColor(const nlohmann::json& item) {
+  const std::string jmol = GetString(item, "jmol_color", {});
+  uint32_t color = ParseHexColor(jmol);
+  if (color != 0) {
+    return color;
+  }
+  const std::string cpk = GetString(item, "cpk_color", {});
+  color = ParseHexColor(cpk);
+  if (color != 0) {
+    return color;
+  }
+  const std::string molcas = GetString(item, "molcas_gv_color", {});
+  color = ParseHexColor(molcas);
+  if (color != 0) {
+    return color;
+  }
+  return PackRGBA(180, 180, 180, 255);
+}
 
 void WriteString(std::ofstream& out, const std::string& value) {
   const uint32_t len = static_cast<uint32_t>(value.size());
@@ -262,11 +323,13 @@ void ParseElementsJson(const std::string& path, std::vector<Element>& elements) 
     element.block = GetString(item, "block", {});
     element.atomicWeight = GetDouble(item, "atomic_weight", 0.0);
     element.atomicRadius = GetDouble(item, "atomic_radius", 0.0);
+    element.atomicVolume = GetDouble(item, "atomic_volume", 0.0);
     element.electronegativity = GetDouble(item, "en_pauling", 0.0);
     element.electronAffinity = GetDouble(item, "electron_affinity", 0.0);
     element.density = GetDouble(item, "density", 0.0);
     element.heatCapacity = GetDouble(item, "specific_heat_capacity", 0.0);
     element.thermalConductivity = GetDouble(item, "thermal_conductivity", 0.0);
+    element.colorRgba = PickElementColor(item);
     elements.push_back(std::move(element));
   }
 }
@@ -494,6 +557,7 @@ bool ChemDB::LoadCache(const std::string& path) {
     ReadString(in, element.block);
     in.read(reinterpret_cast<char*>(&element.atomicWeight), sizeof(element.atomicWeight));
     in.read(reinterpret_cast<char*>(&element.atomicRadius), sizeof(element.atomicRadius));
+    in.read(reinterpret_cast<char*>(&element.atomicVolume), sizeof(element.atomicVolume));
     in.read(reinterpret_cast<char*>(&element.electronegativity), sizeof(element.electronegativity));
     in.read(reinterpret_cast<char*>(&element.electronAffinity), sizeof(element.electronAffinity));
     in.read(reinterpret_cast<char*>(&element.density), sizeof(element.density));
@@ -501,6 +565,7 @@ bool ChemDB::LoadCache(const std::string& path) {
     in.read(reinterpret_cast<char*>(&element.thermalConductivity), sizeof(element.thermalConductivity));
     in.read(reinterpret_cast<char*>(&element.meltingPoint), sizeof(element.meltingPoint));
     in.read(reinterpret_cast<char*>(&element.boilingPoint), sizeof(element.boilingPoint));
+    in.read(reinterpret_cast<char*>(&element.colorRgba), sizeof(element.colorRgba));
     ReadVector(in, element.oxidationStates);
     ReadVector(in, element.ionizationEnergies);
     elements_.push_back(std::move(element));
@@ -564,6 +629,7 @@ bool ChemDB::SaveCache(const std::string& path) const {
     WriteString(out, element.block);
     out.write(reinterpret_cast<const char*>(&element.atomicWeight), sizeof(element.atomicWeight));
     out.write(reinterpret_cast<const char*>(&element.atomicRadius), sizeof(element.atomicRadius));
+    out.write(reinterpret_cast<const char*>(&element.atomicVolume), sizeof(element.atomicVolume));
     out.write(reinterpret_cast<const char*>(&element.electronegativity), sizeof(element.electronegativity));
     out.write(reinterpret_cast<const char*>(&element.electronAffinity), sizeof(element.electronAffinity));
     out.write(reinterpret_cast<const char*>(&element.density), sizeof(element.density));
@@ -571,6 +637,7 @@ bool ChemDB::SaveCache(const std::string& path) const {
     out.write(reinterpret_cast<const char*>(&element.thermalConductivity), sizeof(element.thermalConductivity));
     out.write(reinterpret_cast<const char*>(&element.meltingPoint), sizeof(element.meltingPoint));
     out.write(reinterpret_cast<const char*>(&element.boilingPoint), sizeof(element.boilingPoint));
+    out.write(reinterpret_cast<const char*>(&element.colorRgba), sizeof(element.colorRgba));
     WriteVector(out, element.oxidationStates);
     WriteVector(out, element.ionizationEnergies);
   }
@@ -599,7 +666,9 @@ bool ChemDB::SaveCache(const std::string& path) const {
 
 bool ChemDB::LoadOrBuild(const ChemDBConfig& config) {
   if (!config.cachePath.empty() && fs::exists(config.cachePath)) {
-    return LoadCache(config.cachePath);
+    if (LoadCache(config.cachePath)) {
+      return true;
+    }
   }
   if (!BuildCacheFromRaw(config, *this)) {
     return false;
@@ -653,6 +722,41 @@ std::vector<int> ChemDB::DefaultSeedSpecies(std::size_t count) const {
   return seed;
 }
 
+uint32_t ChemDB::ColorForElement(int atomicNumber) const {
+  const Element* element = GetElement(atomicNumber);
+  if (!element) {
+    return PackRGBA(180, 180, 180, 255);
+  }
+  if (element->colorRgba == 0) {
+    return PackRGBA(180, 180, 180, 255);
+  }
+  return element->colorRgba;
+}
+
+uint32_t ChemDB::ColorForSpecies(int speciesId) const {
+  const Molecule* mol = GetMolecule(speciesId);
+  if (!mol || mol->atoms.empty()) {
+    return ColorForElement(speciesId);
+  }
+  double r = 0.0;
+  double g = 0.0;
+  double b = 0.0;
+  for (const auto& atom : mol->atoms) {
+    const uint32_t color = ColorForElement(atom.atomicNumber);
+    const double rf = static_cast<double>(color & 0xFF) / 255.0;
+    const double gf = static_cast<double>((color >> 8) & 0xFF) / 255.0;
+    const double bf = static_cast<double>((color >> 16) & 0xFF) / 255.0;
+    r += rf;
+    g += gf;
+    b += bf;
+  }
+  const double inv = 1.0 / static_cast<double>(mol->atoms.size());
+  const uint8_t rr = static_cast<uint8_t>(std::clamp(r * inv, 0.0, 1.0) * 255.0);
+  const uint8_t gg = static_cast<uint8_t>(std::clamp(g * inv, 0.0, 1.0) * 255.0);
+  const uint8_t bb = static_cast<uint8_t>(std::clamp(b * inv, 0.0, 1.0) * 255.0);
+  return PackRGBA(rr, gg, bb, 255);
+}
+
 bool ChemDB::BuildCacheFromRaw(const ChemDBConfig& config, ChemDB& outDb) {
   const std::string jsonRoot = config.dataRoot + "/json";
   std::vector<Element> elements;
@@ -682,6 +786,12 @@ bool ChemDB::BuildCacheFromRaw(const ChemDBConfig& config, ChemDB& outDb) {
     if (ph != phase.end()) {
       element.meltingPoint = ph->second.first;
       element.boilingPoint = ph->second.second;
+    }
+    if (element.atomicVolume <= 0.0 && element.density > 0.0 && element.atomicWeight > 0.0) {
+      element.atomicVolume = element.atomicWeight / element.density;
+    }
+    if (element.colorRgba == 0) {
+      element.colorRgba = PackRGBA(180, 180, 180, 255);
     }
   }
 

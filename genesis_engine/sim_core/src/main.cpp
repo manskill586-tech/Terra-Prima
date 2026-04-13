@@ -50,6 +50,7 @@ struct Options {
   int chem_seed = 8;
   double chem_heat_scale = 1e-5;
   bool particle_from_chem = false;
+  bool visual_test = false;
 };
 
 Options ParseArgs(int argc, char** argv) {
@@ -90,6 +91,8 @@ Options ParseArgs(int argc, char** argv) {
       opts.chem_heat_scale = std::stod(argv[++i]);
     } else if (arg == "--particle-from-chem") {
       opts.particle_from_chem = true;
+    } else if (arg == "--visual-test") {
+      opts.visual_test = true;
     }
   }
   return opts;
@@ -148,6 +151,7 @@ int main(int argc, char** argv) {
   world_chem.near_config.maxReactions = 64;
   world_chem.mid_config.maxReactions = 8;
   world.SetChemistry(&chem_db, world_chem);
+  world.SetVisualTest(opts.visual_test);
 
   Snapshot base_snapshot;
   bool has_base_snapshot = false;
@@ -194,6 +198,7 @@ int main(int argc, char** argv) {
   particle_config.count = particle_count;
   particle_config.use_chem_species = opts.particle_from_chem;
   ParticleSystem particles(particle_config);
+  particles.SetChemDB(&chem_db);
   particles.Initialize(opts.seed, world.store().config().world_size_m * 0.5f);
 
   int frame = 0;

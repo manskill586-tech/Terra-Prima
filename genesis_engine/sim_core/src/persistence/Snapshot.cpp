@@ -120,6 +120,7 @@ void ApplySnapshot(const Snapshot& snapshot, uint64_t& seed, double& sim_time, g
     chunk.stable_steps = record.stable_steps;
     chunk.sleeping = record.sleeping;
     chunk.dirty = true;
+    chunk.visual_dirty = true;
   }
 }
 

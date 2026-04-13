@@ -29,18 +29,42 @@ scons platform=windows target=template_debug
 scons platform=windows target=template_release
 ```
 
-## Run (Smoke Test)
-1) Start SIM Core:
+## Tutorial: Build & Play (Alpha)
+1) **Build SIM + GDExtension**
 ```powershell
-genesis_engine\build\Release\genesis_sim.exe --particles 50000 --fps 60
+cmake -S genesis_engine -B genesis_engine/build
+cmake --build genesis_engine/build --config Release
+
+cd genesis_engine\renderer\addons\genesis_bridge
+scons platform=windows target=template_debug
+scons platform=windows target=template_release
 ```
 
-2) Open Godot:
+2) **Run SIM Core (with visual test)**
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --visual-test --near-particles 50000 --particle-from-chem
+```
+If the chemistry cache format changed, add:
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --chem-rebuild --visual-test
+```
+
+3) **Open Godot and Play**
 - Launch `E:\Godot 4 STABLE\Godot_v4.x.exe`
-- Open project at `genesis_engine\renderer`
+- Open project: `genesis_engine\renderer`
 - Run the scene
 
-You should see moving particles and a UI panel with sim time + particle count.
+4) **What you should see**
+- Частицы с цветом (по химии).
+- Чанки по фазам (газ/жидкость/твёрдое/плазма).
+- UI: переключение режимов `Color/Phase/Temp/Hardness`, кнопки `Chunks/Particles`.
+- ЛКМ по сцене — probe‑информация о фазе и параметрах чанка.
+
+Если GDExtension не собран, проект запустится в MOCK‑режиме (тоже видно фазы и цвет).
+
+## PolyVoxel v2 (Visual)
+- Включён по умолчанию для чанков: Voronoi‑границы + деформация от давления.
+- Реализовано в шейдере `renderer/shaders/chunk.shader` (без тяжёлого GPU‑конвейера).
 
 ## Snapshot / Delta
 Save a snapshot after a fixed number of steps:
@@ -68,6 +92,11 @@ genesis_engine\build\Release\genesis_sim.exe --chem-seed 8 --chem-heat-scale 1e-
 ## Near Particles
 ```powershell
 genesis_engine\build\Release\genesis_sim.exe --near-particles 50000 --particle-from-chem
+```
+
+## Visual Test (Temp/Phase Gradient)
+```powershell
+genesis_engine\build\Release\genesis_sim.exe --visual-test
 ```
 
 ## SHM Name Override

@@ -1,0 +1,2 @@
+# Ignore native build artifacts in this folder (e.g., *.obj).
+*

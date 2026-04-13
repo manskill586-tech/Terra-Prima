@@ -40,6 +40,7 @@ public:
   void SetSimTime(double sim_time) { sim_time_ = sim_time; }
   void ResetScheduler();
   void SetChemistry(const terra::chem::ChemDB* db, ChemConfig config);
+  void SetVisualTest(bool enabled) { visual_test_ = enabled; }
   bool HasChemistry() const { return chem_db_ != nullptr; }
   const ChemConfig& chem_config() const { return chem_config_; }
   uint64_t seed() const { return seed_; }
@@ -65,6 +66,7 @@ private:
   int near_radius_{3};
   int mid_radius_{2};
   int far_radius_{1};
+  bool visual_test_{false};
   const terra::chem::ChemDB* chem_db_{nullptr};
   std::unique_ptr<terra::chem::ReactionEngine> reaction_engine_;
   ChemConfig chem_config_{};

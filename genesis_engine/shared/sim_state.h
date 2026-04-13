@@ -47,20 +47,31 @@ struct ChunkData {
   float temperature{0.0f};
   float pressure{0.0f};
   float humidity{0.0f};
-  float concentrations[GENESIS_MAX_MOLECULE_TYPES]{};
+  uint32_t dominant_species_id{0};
+  uint8_t phase{0};
+  uint8_t _pad0[3]{};
+  uint32_t albedo_rgba{0};
+  float opacity{1.0f};
+  float roughness{0.5f};
+  float metallic{0.0f};
+  float scale{1.0f};
+  float hardness{0.0f};
+  float emissive{0.0f};
+  float concentrations[GENESIS_MAX_MOLECULE_TYPES];
   uint8_t lod_level{0}; // 0=Near,1=Mid,2=Far
 };
 
 struct NearParticles {
   uint32_t count{0};
-  float px[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  float py[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  float pz[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  float vx[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  float vy[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  float vz[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  uint16_t element_id[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
-  uint8_t flags[GENESIS_SHM_MAX_NEAR_PARTICLES]{};
+  float px[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  float py[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  float pz[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  float vx[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  float vy[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  float vz[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  uint16_t element_id[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  uint32_t color_rgba[GENESIS_SHM_MAX_NEAR_PARTICLES];
+  uint8_t flags[GENESIS_SHM_MAX_NEAR_PARTICLES];
 };
 
 struct OrganismRef {
@@ -81,14 +92,14 @@ struct WorldState {
   uint32_t mid_chunk_count{0};
   uint32_t far_chunk_count{0};
 
-  ChunkData near_chunks[GENESIS_SHM_MAX_NEAR_CHUNKS]{};
-  ChunkData mid_chunks[GENESIS_SHM_MAX_MID_CHUNKS]{};
-  ChunkData far_chunks[GENESIS_SHM_MAX_FAR_CHUNKS]{};
+  ChunkData near_chunks[GENESIS_SHM_MAX_NEAR_CHUNKS];
+  ChunkData mid_chunks[GENESIS_SHM_MAX_MID_CHUNKS];
+  ChunkData far_chunks[GENESIS_SHM_MAX_FAR_CHUNKS];
 
-  NearParticles near_particles{};
+  NearParticles near_particles;
 
   uint32_t organism_count{0};
-  OrganismRef organisms[GENESIS_SHM_MAX_ORGANISMS]{};
+  OrganismRef organisms[GENESIS_SHM_MAX_ORGANISMS];
 };
 
 struct SHMHeader {
@@ -104,7 +115,7 @@ struct SHMHeader {
 
 struct SimStateBuffer {
   SHMHeader header{};
-  WorldState buffers[2]{};
+  WorldState buffers[2];
 };
 
 inline WorldState* BeginWrite(SimStateBuffer* buffer, uint32_t* out_index) {

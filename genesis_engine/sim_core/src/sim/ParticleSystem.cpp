@@ -1,6 +1,7 @@
 #include "sim/ParticleSystem.h"
 
 #include "shared/sim_state.h"
+#include "terra/chem/ChemDB.h"
 #include "terra/chem/ChemState.h"
 
 #include <algorithm>
@@ -55,6 +56,23 @@ uint16_t DominantSpeciesId(const terra::chem::ChemState& chem) {
   return static_cast<uint16_t>(id & 0xFFFF);
 }
 
+uint32_t PackRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
+  return static_cast<uint32_t>(r) |
+         (static_cast<uint32_t>(g) << 8) |
+         (static_cast<uint32_t>(b) << 16) |
+         (static_cast<uint32_t>(a) << 24);
+}
+
+uint32_t ColorForId(const terra::chem::ChemDB* db, uint16_t id) {
+  if (db) {
+    return db->ColorForSpecies(static_cast<int>(id));
+  }
+  const uint8_t r = static_cast<uint8_t>(50 + (id * 31u) % 200u);
+  const uint8_t g = static_cast<uint8_t>(80 + (id * 57u) % 160u);
+  const uint8_t b = static_cast<uint8_t>(90 + (id * 13u) % 150u);
+  return PackRGBA(r, g, b, 255);
+}
+
 } // namespace
 
 namespace genesis::sim {
@@ -72,6 +90,7 @@ void ParticleSystem::EnsureSize() {
   vy_.resize(count);
   vz_.resize(count);
   element_id_.resize(count);
+  color_rgba_.resize(count);
 }
 
 void ParticleSystem::Initialize(uint64_t seed, float world_half_extent) {
@@ -89,6 +108,7 @@ void ParticleSystem::Initialize(uint64_t seed, float world_half_extent) {
     vy_[i] = SignedNoise(seed, static_cast<uint64_t>(i), 5) * 0.1f;
     vz_[i] = SignedNoise(seed, static_cast<uint64_t>(i), 6) * 0.1f;
     element_id_[i] = static_cast<uint16_t>(1 + (i % 6));
+    color_rgba_[i] = ColorForId(chem_db_, element_id_[i]);
   }
 }
 
@@ -169,6 +189,7 @@ void ParticleSystem::Step(double dt, const genesis::world::ChunkStore& store, ui
         element_id_[i] = DominantSpeciesId(chunk->chem);
       }
     }
+    color_rgba_[i] = ColorForId(chem_db_, element_id_[i]);
   }
 
   step_++;
@@ -186,6 +207,7 @@ void ParticleSystem::WriteToShm(genesis::shared::NearParticles& out) const {
     out.vy[i] = vy_[i];
     out.vz[i] = vz_[i];
     out.element_id[i] = element_id_[i];
+    out.color_rgba[i] = color_rgba_[i];
     out.flags[i] = 0;
   }
 }

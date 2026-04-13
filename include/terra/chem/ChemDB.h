@@ -30,6 +30,8 @@ public:
   const std::vector<int>& ReactionsForSpecies(int speciesId) const;
 
   std::vector<int> DefaultSeedSpecies(std::size_t count) const;
+  uint32_t ColorForElement(int atomicNumber) const;
+  uint32_t ColorForSpecies(int speciesId) const;
 
   static bool BuildCacheFromRaw(const ChemDBConfig& config, ChemDB& outDb);
 

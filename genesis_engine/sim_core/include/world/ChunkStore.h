@@ -21,7 +21,9 @@ struct Chunk {
   ChunkCoord coord{};
   FieldState field{};
   terra::chem::ChemState chem{};
+  VisualProps visual{};
   bool chem_seeded{false};
+  bool visual_dirty{true};
   double last_sim_time{0.0};
   uint32_t stable_steps{0};
   bool dirty{true};
@@ -41,6 +43,7 @@ public:
   void ForEachChunk(Tier tier, const std::function<void(Chunk&)>& fn);
   void ForEachChunk(Tier tier, const std::function<void(const Chunk&)>& fn) const;
   std::vector<Chunk*> CollectActive(Tier tier);
+  std::vector<const Chunk*> CollectActive(Tier tier) const;
 
   void EnsureActiveCube(Tier tier, ChunkCoord center, int radius);
   bool InWorld(Tier tier, ChunkCoord coord) const;

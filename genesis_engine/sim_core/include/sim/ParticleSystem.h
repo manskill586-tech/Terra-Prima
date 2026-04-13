@@ -9,6 +9,10 @@ namespace genesis::shared {
 struct NearParticles;
 }
 
+namespace terra::chem {
+class ChemDB;
+}
+
 namespace genesis::sim {
 
 struct ParticleSystemConfig {
@@ -26,6 +30,7 @@ public:
   void Initialize(uint64_t seed, float world_half_extent);
   void Step(double dt, const genesis::world::ChunkStore& store, uint64_t seed);
   void WriteToShm(genesis::shared::NearParticles& out) const;
+  void SetChemDB(const terra::chem::ChemDB* db) { chem_db_ = db; }
 
   int count() const { return config_.count; }
   void SetUseChemSpecies(bool value) { config_.use_chem_species = value; }
@@ -42,6 +47,8 @@ private:
   std::vector<float> vy_;
   std::vector<float> vz_;
   std::vector<uint16_t> element_id_;
+  std::vector<uint32_t> color_rgba_;
+  const terra::chem::ChemDB* chem_db_{nullptr};
 
   void EnsureSize();
 };

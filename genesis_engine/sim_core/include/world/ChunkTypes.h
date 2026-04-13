@@ -23,6 +23,22 @@ struct FieldState {
   float humidity{0.5f};
 };
 
+struct VisualProps {
+  uint32_t dominant_species_id{0};
+  uint8_t phase{0}; // 0=gas,1=liquid,2=solid,3=plasma
+  float density{0.0f};
+  float hardness{0.0f};
+  float viscosity{0.0f};
+  float compressibility{0.0f};
+  float porosity{0.0f};
+  float opacity{1.0f};
+  float roughness{0.5f};
+  float metallic{0.0f};
+  float scale{1.0f}; // relative scale (0..1) of chunk size
+  float emissive{0.0f};
+  uint32_t albedo_rgba{0};
+};
+
 inline constexpr FieldState kAmbientField{};
 
 inline uint64_t Mix64(uint64_t x) {

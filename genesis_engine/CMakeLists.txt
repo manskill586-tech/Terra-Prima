@@ -74,6 +74,9 @@ target_include_directories(shm_reader
 if (MSVC)
   target_compile_definitions(genesis_sim PRIVATE _CRT_SECURE_NO_WARNINGS)
   target_compile_definitions(shm_reader PRIVATE _CRT_SECURE_NO_WARNINGS)
+  # Large SHM structs can trigger C1060 in MSVC; give the compiler more heap.
+  target_compile_options(genesis_sim PRIVATE /Zm200)
+  target_compile_options(shm_reader PRIVATE /Zm200)
 endif()
 
 target_link_libraries(genesis_sim PRIVATE terra_chem)

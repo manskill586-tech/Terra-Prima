@@ -13,6 +13,7 @@ struct Element {
   std::string block;
   double atomicWeight{0.0};
   double atomicRadius{0.0};
+  double atomicVolume{0.0};
   double electronegativity{0.0};
   double electronAffinity{0.0};
   double density{0.0};
@@ -20,6 +21,7 @@ struct Element {
   double thermalConductivity{0.0};
   double meltingPoint{0.0};
   double boilingPoint{0.0};
+  uint32_t colorRgba{0};
   std::vector<int> oxidationStates;
   std::vector<double> ionizationEnergies;
 };

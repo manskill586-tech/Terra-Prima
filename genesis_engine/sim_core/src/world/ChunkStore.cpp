@@ -84,6 +84,18 @@ std::vector<Chunk*> ChunkStore::CollectActive(Tier tier) {
   return result;
 }
 
+std::vector<const Chunk*> ChunkStore::CollectActive(Tier tier) const {
+  std::vector<const Chunk*> result;
+  const auto& map = MapFor(tier);
+  result.reserve(map.size());
+  for (const auto& [coord, chunk] : map) {
+    if (!chunk.sleeping) {
+      result.push_back(&chunk);
+    }
+  }
+  return result;
+}
+
 int ChunkStore::ChunkSize(Tier tier) const {
   switch (tier) {
     case Tier::Near:
