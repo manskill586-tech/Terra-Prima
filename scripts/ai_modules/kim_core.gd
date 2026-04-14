@@ -1,5 +1,4 @@
 extends Node
-class_name KimCore
 
 var active_modules: Dictionary = {}
 

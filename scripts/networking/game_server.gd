@@ -4,6 +4,11 @@ const PORT: int = 7777
 const MAX_CLIENTS: int = 16
 const DEFAULT_SERVER_HOST: String = "127.0.0.1"
 
+signal kim_response(player_id: int, text: String)
+
+var _personality_module: Node
+var _pending_player_id: int = 0
+
 
 func _ready() -> void:
 	if OS.has_feature("server"):
@@ -67,6 +72,8 @@ func client_send_to_kim(text: String) -> void:
 
 	var personality_module: Node = kim_core.activate_module("personality")
 	if personality_module != null and personality_module.has_method("send_message"):
+		_bind_personality_module(personality_module)
+		_pending_player_id = sender_id
 		personality_module.call("send_message", sender_id, text)
 
 
@@ -75,3 +82,36 @@ func send_text_to_kim(text: String) -> void:
 		client_send_to_kim(text)
 	else:
 		client_send_to_kim.rpc_id(1, text)
+
+
+@rpc("authority", "call_remote", "reliable")
+func server_send_kim_response(player_id: int, text: String) -> void:
+	kim_response.emit(player_id, text)
+	print("[Kim -> %d] %s" % [player_id, text])
+
+
+func _bind_personality_module(personality_module: Node) -> void:
+	if _personality_module == personality_module:
+		return
+
+	if _personality_module != null:
+		var old_callback := Callable(self, "_on_personality_response_done")
+		if _personality_module.has_signal("response_done") and _personality_module.is_connected("response_done", old_callback):
+			_personality_module.disconnect("response_done", old_callback)
+
+	_personality_module = personality_module
+	var callback := Callable(self, "_on_personality_response_done")
+	if _personality_module.has_signal("response_done") and not _personality_module.is_connected("response_done", callback):
+		_personality_module.connect("response_done", callback)
+
+
+func _on_personality_response_done(full_text: String) -> void:
+	if not multiplayer.is_server():
+		return
+
+	var target_player := _pending_player_id
+	if target_player <= 0:
+		target_player = multiplayer.get_unique_id()
+
+	kim_response.emit(target_player, full_text)
+	server_send_kim_response.rpc(target_player, full_text)

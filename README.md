@@ -1,6 +1,6 @@
 # Terra Prima / Kim Prototype
 
-Initial implementation was started from `План.md`, stage 1.
+Initial implementation was started from the stage-1 plan document.
 
 ## Implemented
 
@@ -20,7 +20,6 @@ Initial implementation was started from `План.md`, stage 1.
 2. Install and enable plugins:
    - `NobodyWho`
    - `godot-xr-tools`
-3. Replace placeholder nodes in `personality_module.tscn`:
-   - `NobodyWhoModel` -> plugin model node
-   - `NobodyWhoChat` -> plugin chat node
-4. Wire model/chat settings in Inspector and set the GGUF path.
+3. Open `scenes/kim/modules/personality_module.tscn`.
+4. Set `llm_model_file` in the inspector to your `.gguf` model path.
+5. Run and call `KimCore.activate_module("personality").send_message(0, "hello")`.
