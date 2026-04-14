@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/networking/game_server.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/world/world_bootstrap.gd" id="2"]
 
 [node name="WorldScene" type="Node3D"]
+script = ExtResource("2")
 
 [node name="GameServer" type="Node" parent="."]
 script = ExtResource("1")
