@@ -1,0 +1,28 @@
+; Engine configuration file.
+; It's best edited using the editor and not directly.
+;
+; Format:
+;   [section]
+;   param=value
+
+config_version=5
+
+[application]
+
+config/name="Terra Prima"
+run/main_scene="res://scenes/world/world_scene.tscn"
+config/features=PackedStringArray("forward_plus")
+
+[autoload]
+
+KimCore="*res://scripts/ai_modules/kim_core.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
