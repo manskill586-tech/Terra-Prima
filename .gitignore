@@ -1,4 +1,121 @@
+# ──────────────────────────────────────────────────────────────
+# Godot 4
+# ──────────────────────────────────────────────────────────────
+
+# Godot-generated import cache and editor data
 .godot/
+*.uid
+
+# Export presets (contain per-machine absolute paths)
+export_presets.cfg
 export/
-*.import
-*.translation
+
+# Exported builds
+*.exe
+*.x86_64
+*.arm64
+*.apk
+*.aab
+*.ipa
+*.pck
+*.zip
+
+# Mono/C# Godot build artifacts
+.mono/
+data_*/
+mono_crash.*.json
+
+# ──────────────────────────────────────────────────────────────
+# Project-specific: large binary assets
+# ──────────────────────────────────────────────────────────────
+
+# LLM model files — GGUF can be several GB, keep out of git
+models/*.gguf
+models/**/*.gguf
+models/**/*.bin
+models/**/*.safetensors
+
+# ──────────────────────────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────────────────────────
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+.venv-mm/
+venv/
+scripts/perception/python_service/.venv/
+**/.venv/
+
+# gRPC generated stubs (regenerate from .proto — don't commit)
+scripts/perception/csharp/*_pb.cs
+scripts/perception/csharp/*Grpc.cs
+
+# ──────────────────────────────────────────────────────────────
+# .NET / C#
+# ──────────────────────────────────────────────────────────────
+
+obj/
+bin/
+*.user
+*.suo
+.vs/
+*.csproj.user
+
+# ──────────────────────────────────────────────────────────────
+# NobodyWho — Windows file lock artifact (tilde prefix)
+# ──────────────────────────────────────────────────────────────
+addons/nobodywho/~*.dll
+
+# ──────────────────────────────────────────────────────────────
+# Godot user:// runtime save files
+# These live in %APPDATA% on Windows, not in the project folder.
+# Listed here in case someone copies them in during testing.
+# ──────────────────────────────────────────────────────────────
+kim_profiles.json
+kim_weights.json
+kim_ratings.json
+kim_analytics.json
+kim_quests.json
+
+# ──────────────────────────────────────────────────────────────
+# OS cruft
+# ──────────────────────────────────────────────────────────────
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+
+# ──────────────────────────────────────────────────────────────
+# Editors
+# ──────────────────────────────────────────────────────────────
+
+# VSCode (keep settings.json if it has shared project config)
+.vscode/launch.json
+.vscode/tasks.json
+
+# JetBrains
+.idea/
+*.iml
+
+# ──────────────────────────────────────────────────────────────
+# Logs and temp
+# ──────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak

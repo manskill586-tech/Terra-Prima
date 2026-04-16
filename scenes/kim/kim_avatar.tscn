@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/kim/kim_avatar.gd" id="1_script"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.35
+height = 1.7
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape_col"]
+radius = 0.35
+height = 1.7
+
+[node name="KimAvatar" type="CharacterBody3D"]
+script = ExtResource("1_script")
+
+[node name="Visual" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.85, 0)
+shape = SubResource("CapsuleShape_col")

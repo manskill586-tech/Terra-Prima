@@ -4,6 +4,7 @@ extends Node3D
 	"personality",
 	"analyst",
 	"idea_gen",
+	"creator",
 ]
 
 

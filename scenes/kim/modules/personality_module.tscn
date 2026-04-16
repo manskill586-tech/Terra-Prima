@@ -4,7 +4,8 @@
 
 [node name="PersonalityModule" type="Node"]
 script = ExtResource("1")
+llm_model_file = "res://models/Qwen3-VL-4B-Thinking-GGUF/Qwen3-VL-4B-Thinking-UD-Q8_K_XL.gguf"
 
-[node name="NobodyWhoModel" type="Node" parent="."]
+[node name="NobodyWhoModel" type="NobodyWhoModel" parent="."]
 
-[node name="NobodyWhoChat" type="Node" parent="."]
+[node name="NobodyWhoChat" type="NobodyWhoChat" parent="."]

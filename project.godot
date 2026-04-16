@@ -17,8 +17,23 @@ config/features=PackedStringArray("4.6")
 [autoload]
 
 KimCore="*res://scripts/ai_modules/kim_core.gd"
+FeedbackLearner="*res://scripts/ai_modules/feedback_learner.gd"
+QuestManager="*res://scripts/ai_modules/quest_manager.gd"
+EnvironmentController="*res://scripts/world/environment_controller.gd"
+PerformanceMonitor="*res://scripts/world/performance_monitor.gd"
+PerformanceManager="*res://scripts/world/performance_manager.gd"
+XRToolsUserSettings="*uid://bqgb8i74tm0t"
+XRToolsRumbleManager="*uid://by853dk86g1qw"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[dotnet]
+
+project/assembly_name="Terra Prima"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-xr-tools/plugin.cfg", "res://addons/godot_super-wakatime/plugin.cfg")

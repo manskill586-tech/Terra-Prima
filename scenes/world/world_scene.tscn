@@ -1,10 +1,15 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bme7g57e1a0ip"]
 
-[ext_resource type="Script" path="res://scripts/networking/game_server.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/world/world_bootstrap.gd" id="2"]
+[ext_resource type="Script" uid="uid://d3y7v1dsh32wr" path="res://scripts/networking/game_server.gd" id="1"]
+[ext_resource type="Script" uid="uid://bfci61ro74tqt" path="res://scripts/world/world_bootstrap.gd" id="2"]
+[ext_resource type="Script" uid="uid://dqeib0s2wf8pm" path="res://scripts/perception/perception_router.gd" id="3"]
 
-[node name="WorldScene" type="Node3D"]
+[node name="WorldScene" type="Node3D" unique_id=1782411233]
 script = ExtResource("2")
 
-[node name="GameServer" type="Node" parent="."]
+[node name="GameServer" type="Node" parent="." unique_id=1938867085]
 script = ExtResource("1")
+
+[node name="PerceptionRouter" type="Node" parent="." unique_id=855202973]
+script = ExtResource("3")
+target_game_server_path = NodePath("../GameServer")

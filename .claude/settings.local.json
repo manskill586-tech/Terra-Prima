@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.md$|^d\")",
+      "Bash(xargs head *)"
+    ]
+  }
+}

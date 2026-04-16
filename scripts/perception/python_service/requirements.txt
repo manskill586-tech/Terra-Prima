@@ -1,0 +1,6 @@
+grpcio>=1.68.0
+grpcio-tools>=1.68.0
+numpy>=1.26.0
+torch>=2.3.0
+librosa>=0.10.2
+soundfile>=0.12.1

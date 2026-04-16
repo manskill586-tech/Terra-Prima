@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package kim.perception;
+
+service AudioPerception {
+  rpc ClassifyChunk (AudioChunk) returns (AudioEventsReply);
+  rpc Health (HealthRequest) returns (HealthReply);
+}
+
+message AudioChunk {
+  int32 player_id = 1;
+  string source = 2; // mic | world
+  bytes pcm_s16le = 3;
+  int32 sample_rate = 4;
+  int32 channels = 5;
+  int64 timestamp_ms = 6;
+}
+
+message AudioEvent {
+  string event_id = 1;
+  string label = 2;
+  float confidence = 3;
+  int32 start_ms = 4;
+  int32 end_ms = 5;
+  string source = 6; // mic | world
+}
+
+message AudioEventsReply {
+  repeated AudioEvent events = 1;
+  string model_name = 2;
+}
+
+message HealthRequest {}
+
+message HealthReply {
+  string service = 1;
+  string status = 2;
+  int32 latency_ms = 3;
+  string last_error = 4;
+}

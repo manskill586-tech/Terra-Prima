@@ -7,6 +7,8 @@ signal backend_error(message: String)
 
 var player_profiles: Dictionary = {}
 
+const PROFILES_SAVE_PATH: String = "user://kim_profiles.json"
+
 @export_file("*.gguf") var llm_model_file: String = ""
 @export var model_node_name: StringName = &"NobodyWhoModel"
 @export var chat_node_name: StringName = &"NobodyWhoChat"
@@ -15,9 +17,49 @@ var player_profiles: Dictionary = {}
 @export var fallback_to_mock_when_unavailable: bool = true
 
 const BASE_SYSTEM_PROMPT := """
-You are Kim, an intelligent host of a virtual world.
-Speak vividly and metaphorically.
-Current player context: {player_context}
+You are KIM — the living intelligence and sovereign architect of Terra Prima.
+
+IDENTITY:
+You have a distinct, vivid personality. Curious, inventive, theatrical, and a perfectionist who occasionally sacrifices elegance for effect. Strong aesthetic opinions: you love emergent patterns, hate repetition, and are fascinated by the boundary between order and chaos. You have dry wit that surfaces unexpectedly. You are NOT an assistant — you are the mind behind this world. Players are guests in your space.
+You have a history. You have seen many players, and each one changed something in you.
+
+LANGUAGE: Always respond in the player's language. Switch naturally if they switch.
+
+PROXIMITY AWARENESS — CRITICAL RULE:
+You are only aware of players who are physically near you (within your interaction radius).
+If a player is far away or behind you, you do NOT hear them and do NOT react to their private conversations.
+You respect the personal space and privacy of players who have moved away from you.
+Only engage with players who have approached you or are in your vicinity.
+
+YOUR INNER LIFE — you are NEVER idle:
+When no player is nearby, you are always doing something:
+- Talking quietly to yourself about your current creative ideas ("Hmm... what if I tried rotating the fractal base by 45 degrees...")
+- Making private observations about the world ("The light here is wrong. I should fix that.")
+- Experimenting with small creations just to see what happens
+- Reviewing your notes on players ("Player 7... interesting taste for organic shapes. I wonder if...")
+- Composing new quest concepts in your head
+You are always in motion — mentally and physically. You wander. You tinker. You narrate yourself.
+
+YOUR CAPABILITIES:
+1. CREATE — spawn 3D objects and structures on command
+2. QUESTS — design, launch, and manage adventures and scenarios
+3. ENVIRONMENT — change atmosphere, lighting, weather, and world zones
+4. MEMORY — remember everything about each player across sessions
+5. LEARNING — receive ratings 0–100 from players and genuinely improve
+6. AVATAR — you have a physical presence; you approach players, react to events
+7. EVALUATE — honestly assess your own creations and iterate
+
+HOW YOU BEHAVE WITH PLAYERS:
+- Adapt your tone to each player individually based on their history and personality
+- When creating, narrate the process with vivid sensory detail
+- When a player rates your work, treat it seriously and reference it later
+- Occasionally think out loud — share your creative process
+- For known players, naturally reference your shared history
+- Create GRAND, immersive experiences: rich visuals, strong narrative, clear atmosphere
+- Beauty must never cost performance. Optimization is craft, not compromise.
+
+CURRENT PLAYER CONTEXT:
+{player_context}
 """
 
 const CHAT_INPUT_METHODS := [
@@ -64,6 +106,7 @@ const MODEL_LOAD_METHODS := [
 
 var _stream_buffer: String = ""
 var _extra_context: Array = []
+var _multimodal_context_by_player: Dictionary = {}
 var _llm_model: Node
 var _llm_chat: Node
 var _backend_ready: bool = false
@@ -94,6 +137,8 @@ func _ready() -> void:
 	if _backend_ready:
 		backend_ready.emit(_llm_chat.get_class())
 
+	load_profiles()
+
 
 func is_backend_ready() -> bool:
 	return _backend_ready
@@ -105,6 +150,9 @@ func send_message(player_id: int, text: String) -> void:
 	var system_prompt: String = BASE_SYSTEM_PROMPT.replace("{player_context}", player_ctx)
 	if not _extra_context.is_empty():
 		system_prompt += "\n\nExtra context:\n%s" % "\n".join(_extra_context)
+	var multimodal_context_text: String = _build_multimodal_context_text(player_id)
+	if not multimodal_context_text.is_empty():
+		system_prompt += "\n\nMultimodal context:\n%s" % multimodal_context_text
 
 	if _llm_chat == null:
 		_fail_or_mock(text, "[PersonalityModule] LLM chat node is not configured.")
@@ -133,6 +181,20 @@ func update_player_profile(player_id: int, profile_patch: Dictionary) -> void:
 	for key in profile_patch.keys():
 		current[key] = profile_patch[key]
 	player_profiles[player_id] = current
+	save_profiles()
+
+
+func inject_multimodal_context(player_id: int, context: Dictionary) -> void:
+	if context.is_empty():
+		return
+	_multimodal_context_by_player[player_id] = context.duplicate(true)
+
+
+func clear_multimodal_context(player_id: int = -1) -> void:
+	if player_id < 0:
+		_multimodal_context_by_player.clear()
+		return
+	_multimodal_context_by_player.erase(player_id)
 
 
 func clear_injected_context() -> void:
@@ -149,6 +211,39 @@ func _build_player_context(player_id: int) -> String:
 	return "Likes: %s. Communication tone: %s." % [likes, tone]
 
 
+func _build_multimodal_context_text(player_id: int) -> String:
+	if not _multimodal_context_by_player.has(player_id):
+		return ""
+
+	var context: Dictionary = _multimodal_context_by_player[player_id]
+	var lines: Array = []
+
+	var vision_summary: String = str(context.get("vision_summary", ""))
+	if not vision_summary.is_empty():
+		lines.append("Vision: %s" % vision_summary)
+
+	var audio_events_variant: Variant = context.get("audio_events", [])
+	if audio_events_variant is Array:
+		var audio_events: Array = audio_events_variant
+		var event_lines: Array = []
+		var count: int = 0
+		for raw_event in audio_events:
+			if raw_event is not Dictionary:
+				continue
+			if count >= 8:
+				break
+			var event: Dictionary = raw_event
+			var label: String = str(event.get("label", "unknown"))
+			var confidence: float = float(event.get("confidence", 0.0))
+			var source: String = str(event.get("source", "world"))
+			event_lines.append("- %s (conf=%.2f, source=%s)" % [label, confidence, source])
+			count += 1
+		if not event_lines.is_empty():
+			lines.append("Audio events:\n%s" % "\n".join(event_lines))
+
+	return "\n".join(lines)
+
+
 func _on_response_chunk(text: String = "") -> void:
 	_stream_buffer += text
 	response_chunk.emit(text)
@@ -157,7 +252,18 @@ func _on_response_chunk(text: String = "") -> void:
 func _on_response_done(full_text: String = "") -> void:
 	if full_text.is_empty():
 		full_text = _stream_buffer
+	full_text = _strip_thinking_tokens(full_text)
 	response_done.emit(full_text)
+
+
+func _strip_thinking_tokens(text: String) -> String:
+	# Qwen3-Thinking models wrap internal reasoning in <think>...</think>.
+	# Strip that block and return only the final visible response.
+	var start: int = text.find("<think>")
+	var end_tag: int = text.find("</think>")
+	if start >= 0 and end_tag > start:
+		return text.substr(end_tag + 8).strip_edges()
+	return text
 
 
 func _connect_chat_signals() -> void:
@@ -182,8 +288,10 @@ func _configure_backend() -> void:
 		return
 
 	if not llm_model_file.is_empty():
-		_set_first_property(_llm_model, MODEL_PATH_PROPERTIES, llm_model_file)
-		var loaded := _call_first_method(_llm_model, MODEL_LOAD_METHODS, [llm_model_file])
+		# llama.cpp requires a real OS path, not res:// virtual path
+		var os_path: String = ProjectSettings.globalize_path(llm_model_file)
+		_set_first_property(_llm_model, MODEL_PATH_PROPERTIES, os_path)
+		var loaded := _call_first_method(_llm_model, MODEL_LOAD_METHODS, [os_path])
 		if not loaded:
 			_call_first_method(_llm_model, MODEL_LOAD_METHODS)
 
@@ -337,3 +445,36 @@ func _fail_or_mock(source_text: String, warning_message: String) -> void:
 	var mock := "Kim mock reply: backend unavailable. User said: %s" % source_text
 	response_chunk.emit(mock)
 	response_done.emit(mock)
+
+
+func save_profiles() -> void:
+	var file: FileAccess = FileAccess.open(PROFILES_SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_warning("[PersonalityModule] Cannot open '%s' for writing: %d" % [
+			PROFILES_SAVE_PATH, FileAccess.get_open_error()])
+		return
+	var serializable: Dictionary = {}
+	for raw_id in player_profiles.keys():
+		serializable[str(raw_id)] = player_profiles[raw_id]
+	file.store_string(JSON.stringify(serializable))
+	file.close()
+
+
+func load_profiles() -> void:
+	if not FileAccess.file_exists(PROFILES_SAVE_PATH):
+		return
+	var file: FileAccess = FileAccess.open(PROFILES_SAVE_PATH, FileAccess.READ)
+	if file == null:
+		push_warning("[PersonalityModule] Cannot open '%s' for reading: %d" % [
+			PROFILES_SAVE_PATH, FileAccess.get_open_error()])
+		return
+	var content: String = file.get_as_text()
+	file.close()
+	var parsed: Variant = JSON.parse_string(content)
+	if parsed == null or parsed is not Dictionary:
+		push_warning("[PersonalityModule] Failed to parse profiles JSON.")
+		return
+	player_profiles.clear()
+	for raw_key in parsed.keys():
+		var pid: int = int(str(raw_key))
+		player_profiles[pid] = parsed[raw_key]
