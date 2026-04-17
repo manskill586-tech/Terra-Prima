@@ -74,7 +74,7 @@ func _apply_gravity(delta: float) -> void:
 		velocity.y -= _gravity * delta
 
 
-func _move_toward_target(delta: float) -> void:
+func _move_toward_target(_delta: float) -> void:
 	var direction: Vector3 = (_target_position - global_position)
 	direction.y = 0.0
 	var dist: float = direction.length()
@@ -174,7 +174,7 @@ func register_player_node(player_id: int, player_node: Node3D) -> void:
 	var dist: float = global_position.distance_to(player_node.global_position)
 
 	var was_in_range: bool = _players_in_range.has(player_id)
-	var was_aware: bool = _players_in_awareness.has(player_id)
+	var _was_aware: bool = _players_in_awareness.has(player_id)
 
 	if dist <= interaction_radius:
 		_players_in_range[player_id] = player_node

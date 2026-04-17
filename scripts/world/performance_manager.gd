@@ -37,6 +37,8 @@ var _vote_timers: Dictionary = {}             # penalty_id -> float (countdown)
 
 
 func _process(delta: float) -> void:
+	if multiplayer.multiplayer_peer == null:
+		return
 	if not multiplayer.is_server():
 		return
 	_tick_vote_timers(delta)
@@ -45,6 +47,8 @@ func _process(delta: float) -> void:
 # ─── FPS Report ingestion ─────────────────────────────────────────────────────
 
 func receive_fps_report(player_id: int, avg_fps: float, target_fps: float = 60.0, monitor_hz: float = 60.0) -> void:
+	if multiplayer.multiplayer_peer == null:
+		return
 	if not multiplayer.is_server():
 		return
 

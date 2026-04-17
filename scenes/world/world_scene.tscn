@@ -1,11 +1,39 @@
 [gd_scene format=3 uid="uid://bme7g57e1a0ip"]
 
 [ext_resource type="Script" uid="uid://d3y7v1dsh32wr" path="res://scripts/networking/game_server.gd" id="1"]
-[ext_resource type="Script" uid="uid://bfci61ro74tqt" path="res://scripts/world/world_bootstrap.gd" id="2"]
+[ext_resource type="Script" uid="uid://bfci61ro74tqt" path="res://scripts/world/world_bootstrap.gd" id="2_bootstrap"]
 [ext_resource type="Script" uid="uid://dqeib0s2wf8pm" path="res://scripts/perception/perception_router.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/kim/kim_avatar.tscn" id="4_nphnh"]
+[ext_resource type="PackedScene" path="res://scenes/ui/player_hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="6_player"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.06, 0.06, 0.12, 1)
+sky_horizon_color = Color(0.22, 0.26, 0.34, 1)
+ground_bottom_color = Color(0.05, 0.05, 0.1, 1)
+ground_horizon_color = Color(0.14, 0.16, 0.22, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 3
+ambient_light_energy = 0.5
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.1, 0.1, 0.16, 1)
+metallic = 0.02
+roughness = 0.95
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(80, 80)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_1"]
 
 [node name="WorldScene" type="Node3D" unique_id=1782411233]
-script = ExtResource("2")
+script = ExtResource("2_bootstrap")
 
 [node name="GameServer" type="Node" parent="." unique_id=1938867085]
 script = ExtResource("1")
@@ -13,3 +41,36 @@ script = ExtResource("1")
 [node name="PerceptionRouter" type="Node" parent="." unique_id=855202973]
 script = ExtResource("3")
 target_game_server_path = NodePath("../GameServer")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=332813481]
+environment = SubResource("Environment_1")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=719137711]
+transform = Transform3D(0.866, 0.354, -0.354, 0, 0.707, 0.707, 0.5, -0.612, 0.612, 0, 8, 0)
+light_color = Color(1, 0.96, 0.88, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="AmbientFill" type="OmniLight3D" parent="." unique_id=2016622444]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 0)
+light_color = Color(0.4, 0.45, 0.6, 1)
+light_energy = 0.6
+omni_range = 40.0
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=1075733163]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.028756142, 0)
+material_override = SubResource("Material_floor")
+mesh = SubResource("PlaneMesh_floor")
+
+[node name="FloorCollision" type="StaticBody3D" parent="." unique_id=1658248831]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloorCollision" unique_id=278886520]
+shape = SubResource("WorldBoundaryShape3D_1")
+
+[node name="KimAvatar" parent="." unique_id=1967282047 instance=ExtResource("4_nphnh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
+
+[node name="Player" parent="." instance=ExtResource("6_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+
+[node name="PlayerHUD" parent="." instance=ExtResource("5_hud")]

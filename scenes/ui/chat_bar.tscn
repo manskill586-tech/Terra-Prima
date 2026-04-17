@@ -1,0 +1,55 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/chat_bar.gd" id="1"]
+
+[node name="ChatBar" type="Control"]
+script = ExtResource("1")
+offset_left = 0.0
+offset_top = 84.0
+offset_right = 192.0
+offset_bottom = 108.0
+
+[node name="ChatBackground" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 2
+texture_filter = 1
+mouse_filter = 2
+
+[node name="ChatHistory" type="ScrollContainer" parent="."]
+offset_left = 2.0
+offset_top = 1.0
+offset_right = 190.0
+offset_bottom = 16.0
+follow_focus = true
+
+[node name="MessagesContainer" type="VBoxContainer" parent="ChatHistory"]
+size_flags_horizontal = 3
+size_flags_vertical = 8
+
+[node name="InputRow" type="HBoxContainer" parent="."]
+offset_left = 2.0
+offset_top = 17.0
+offset_right = 190.0
+offset_bottom = 23.0
+separation = 2
+
+[node name="ModeToggle" type="Button" parent="InputRow"]
+custom_minimum_size = Vector2(22, 0)
+size_flags_vertical = 4
+text = "W"
+theme_override_font_sizes/font_size = 5
+
+[node name="ChatInput" type="LineEdit" parent="InputRow"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+placeholder_text = "message..."
+theme_override_font_sizes/font_size = 5
+
+[node name="SendButton" type="TextureButton" parent="InputRow"]
+custom_minimum_size = Vector2(14, 6)
+size_flags_vertical = 4
+ignore_texture_size = true
+stretch_mode = 1
+texture_filter = 1

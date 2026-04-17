@@ -85,10 +85,10 @@ func _find_node_of_type(node: Node, type_name: String) -> Node:
 
 # ─── Environment control ──────────────────────────────────────────────────────
 
-func apply_environment(name: String) -> void:
-	var lower: String = name.to_lower()
+func apply_environment(preset_name: String) -> void:
+	var lower: String = preset_name.to_lower()
 	if not ENVIRONMENT_PRESETS.has(lower):
-		push_warning("[EnvController] Unknown environment preset: %s" % name)
+		push_warning("[EnvController] Unknown environment preset: %s" % preset_name)
 		return
 	current_environment = lower
 	var props: Dictionary = ENVIRONMENT_PRESETS[lower]

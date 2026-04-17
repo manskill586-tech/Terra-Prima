@@ -108,7 +108,7 @@ func _evaluate_internally(metadata: Dictionary) -> float:
 	return (poly_score + concept_score) / 2.0
 
 
-func _adjust_weights_from_rating(game_id: String, rating: int) -> void:
+func _adjust_weights_from_rating(_game_id: String, rating: int) -> void:
 	# Convert 0–100 to -1..+1 learning signal
 	var signal_val: float = (float(rating) - 50.0) / 50.0
 	var delta: float = signal_val * LEARNING_RATE

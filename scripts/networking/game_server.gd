@@ -6,6 +6,7 @@ const DEFAULT_SERVER_HOST: String = "127.0.0.1"
 
 signal kim_response(player_id: int, text: String)
 signal player_rated_game(player_id: int, game_id: String, rating: int)
+signal world_message_received(sender_id: int, text: String)
 
 var _personality_module: Node
 var _analyst_module: Node
@@ -119,6 +120,31 @@ func send_text_to_kim(text: String) -> void:
 		client_send_to_kim(text)
 	else:
 		client_send_to_kim.rpc_id(1, text)
+
+
+# ─── World chat ───────────────────────────────────────────────────────────────
+
+@rpc("any_peer", "call_local", "reliable")
+func client_send_world_message(text: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var sender_id: int = multiplayer.get_remote_sender_id()
+	if sender_id <= 0:
+		sender_id = multiplayer.get_unique_id()
+	server_broadcast_world_message.rpc(sender_id, text)
+	world_message_received.emit(sender_id, text)
+
+
+@rpc("authority", "call_remote", "reliable")
+func server_broadcast_world_message(sender_id: int, text: String) -> void:
+	world_message_received.emit(sender_id, text)
+
+
+func send_world_message(text: String) -> void:
+	if multiplayer.is_server():
+		client_send_world_message(text)
+	else:
+		client_send_world_message.rpc_id(1, text)
 
 
 @rpc("authority", "call_remote", "reliable")

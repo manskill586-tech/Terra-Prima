@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/player_hud.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/chat_bar.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/microphone_ui.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/settings_panel.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/rating_popup.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui/vote_popup.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/ui/toolbar.tscn" id="7"]
+
+[node name="PlayerHUD" type="CanvasLayer"]
+script = ExtResource("1")
+layer = 1
+
+[node name="RootControl" type="Control" parent="."]
+size = Vector2(192, 108)
+mouse_filter = 2
+
+[node name="HPLabel" type="Label" parent="RootControl"]
+offset_left = 138.0
+offset_top = 1.0
+offset_right = 191.0
+offset_bottom = 12.0
+text = "HP 100"
+theme_override_font_sizes/font_size = 6
+
+[node name="Crosshair" type="TextureRect" parent="RootControl"]
+offset_left = 94.0
+offset_top = 52.0
+offset_right = 98.0
+offset_bottom = 56.0
+expand_mode = 1
+stretch_mode = 2
+mouse_filter = 2
+
+[node name="ChatBar" parent="RootControl" instance=ExtResource("2")]
+
+[node name="MicrophoneUI" parent="RootControl" instance=ExtResource("3")]
+
+[node name="Toolbar" parent="RootControl" instance=ExtResource("7")]
+
+[node name="SettingsPanel" parent="RootControl" instance=ExtResource("4")]
+
+[node name="RatingPopup" parent="RootControl" instance=ExtResource("5")]
+visible = false
+
+[node name="VotePopup" parent="RootControl" instance=ExtResource("6")]
+visible = false
