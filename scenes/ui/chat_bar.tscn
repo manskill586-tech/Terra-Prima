@@ -2,12 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/ui/chat_bar.gd" id="1"]
 
-[node name="ChatBar" type="Control"]
+[node name="ChatBar" type="PanelContainer"]
 script = ExtResource("1")
-offset_left = 0.0
-offset_top = 84.0
-offset_right = 192.0
-offset_bottom = 108.0
+mouse_filter = 1
 
 [node name="ChatBackground" type="TextureRect" parent="."]
 anchor_right = 1.0
@@ -17,39 +14,73 @@ stretch_mode = 2
 texture_filter = 1
 mouse_filter = 2
 
-[node name="ChatHistory" type="ScrollContainer" parent="."]
-offset_left = 2.0
-offset_top = 1.0
-offset_right = 190.0
-offset_bottom = 16.0
+[node name="ContentMargin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="ContentVBox" type="VBoxContainer" parent="ContentMargin"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="ChatHistory" type="ScrollContainer" parent="ContentMargin/ContentVBox"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 follow_focus = true
 
-[node name="MessagesContainer" type="VBoxContainer" parent="ChatHistory"]
+[node name="MessagesContainer" type="VBoxContainer" parent="ContentMargin/ContentVBox/ChatHistory"]
 size_flags_horizontal = 3
-size_flags_vertical = 8
+size_flags_vertical = 3
+theme_override_constants/separation = 4
 
-[node name="InputRow" type="HBoxContainer" parent="."]
-offset_left = 2.0
-offset_top = 17.0
-offset_right = 190.0
-offset_bottom = 23.0
-separation = 2
-
-[node name="ModeToggle" type="Button" parent="InputRow"]
-custom_minimum_size = Vector2(22, 0)
-size_flags_vertical = 4
-text = "W"
-theme_override_font_sizes/font_size = 5
-
-[node name="ChatInput" type="LineEdit" parent="InputRow"]
+[node name="InputRow" type="HBoxContainer" parent="ContentMargin/ContentVBox"]
 size_flags_horizontal = 3
 size_flags_vertical = 4
-placeholder_text = "message..."
-theme_override_font_sizes/font_size = 5
+theme_override_constants/separation = 4
 
-[node name="SendButton" type="TextureButton" parent="InputRow"]
-custom_minimum_size = Vector2(14, 6)
+[node name="ModeToggle" type="Button" parent="ContentMargin/ContentVBox/InputRow"]
+custom_minimum_size = Vector2(50, 22)
+size_flags_vertical = 4
+text = "World"
+
+[node name="InputWrap" type="Control" parent="ContentMargin/ContentVBox/InputRow"]
+custom_minimum_size = Vector2(80, 22)
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="InputBackground" type="TextureRect" parent="ContentMargin/ContentVBox/InputRow/InputWrap"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 2
+texture_filter = 1
+mouse_filter = 2
+
+[node name="ChatInput" type="LineEdit" parent="ContentMargin/ContentVBox/InputRow/InputWrap"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = -2.0
+placeholder_text = "Type message..."
+
+[node name="SendButton" type="TextureButton" parent="ContentMargin/ContentVBox/InputRow"]
+custom_minimum_size = Vector2(24, 22)
 size_flags_vertical = 4
 ignore_texture_size = true
 stretch_mode = 1
 texture_filter = 1
+
+[node name="TransportLabel" type="Label" parent="ContentMargin/ContentVBox/InputRow"]
+custom_minimum_size = Vector2(110, 22)
+size_flags_vertical = 4
+text = "Offline local"
+horizontal_alignment = 2
+vertical_alignment = 1

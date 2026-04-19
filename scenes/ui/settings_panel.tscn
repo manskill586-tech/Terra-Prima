@@ -4,41 +4,54 @@
 
 [node name="SettingsPanel" type="Control"]
 script = ExtResource("1")
-offset_left = 1.0
-offset_top = 1.0
+mouse_filter = 1
 
 [node name="ToggleBtn" type="TextureButton" parent="."]
-custom_minimum_size = Vector2(12, 12)
+custom_minimum_size = Vector2(18, 18)
 ignore_texture_size = true
 stretch_mode = 1
 texture_filter = 1
 
-[node name="IconsRoot" type="Control" parent="."]
-mouse_filter = 2
-
-[node name="ContentPanel" type="Panel" parent="."]
-custom_minimum_size = Vector2(60, 80)
+[node name="ContentPanel" type="PanelContainer" parent="."]
 visible = false
+offset_left = 24.0
+offset_top = 0.0
+offset_right = 158.0
+offset_bottom = 116.0
 
-[node name="Title" type="Label" parent="ContentPanel"]
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 58.0
-offset_bottom = 10.0
-theme_override_font_sizes/font_size = 6
+[node name="ContentMargin" type="MarginContainer" parent="ContentPanel"]
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="Body" type="Label" parent="ContentPanel"]
-offset_left = 2.0
-offset_top = 11.0
-offset_right = 58.0
-offset_bottom = 78.0
-autowrap_mode = 3
-theme_override_font_sizes/font_size = 5
+[node name="ContentVBox" type="VBoxContainer" parent="ContentPanel/ContentMargin"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
 
-[node name="CloseBtn" type="Button" parent="ContentPanel"]
-offset_left = 52.0
-offset_top = 1.0
-offset_right = 60.0
-offset_bottom = 9.0
+[node name="HeaderRow" type="HBoxContainer" parent="ContentPanel/ContentMargin/ContentVBox"]
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="ContentPanel/ContentMargin/ContentVBox/HeaderRow"]
+size_flags_horizontal = 3
+text = "Settings"
+
+[node name="CloseBtn" type="Button" parent="ContentPanel/ContentMargin/ContentVBox/HeaderRow"]
+custom_minimum_size = Vector2(18, 0)
 text = "X"
-theme_override_font_sizes/font_size = 5
+
+[node name="SectionsRow" type="HBoxContainer" parent="ContentPanel/ContentMargin/ContentVBox"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="IconsColumn" type="VBoxContainer" parent="ContentPanel/ContentMargin/ContentVBox/SectionsRow"]
+custom_minimum_size = Vector2(28, 0)
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="Body" type="Label" parent="ContentPanel/ContentMargin/ContentVBox/SectionsRow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+autowrap_mode = 3

@@ -6,11 +6,15 @@
 script = ExtResource("1")
 mouse_filter = 2
 
-[node name="PanelBg" type="Panel" parent="."]
+[node name="PanelBg" type="TextureRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 2
+texture_filter = 1
+mouse_filter = 2
 
-[node name="DrumContainer" type="Control" parent="."]
+[node name="SlotsRoot" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 0
+mouse_filter = 2

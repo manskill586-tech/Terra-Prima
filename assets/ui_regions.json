@@ -1,0 +1,173 @@
+{
+  "ui_top_right_bg": {
+	"source_path": "res://assets/ui_alias/ui_top_right_bg.png",
+	"rect": [
+	  142,
+	  0,
+	  50,
+	  39
+	]
+  },
+  "ui_hp_bar": {
+	"source_path": "res://assets/ui_alias/ui_hp_bar.png",
+	"rect": [
+	  184,
+	  2,
+	  7,
+	  6
+	]
+  },
+  "crosshair_dot": {
+	"source_path": "res://assets/ui_alias/crosshair_dot.png",
+	"rect": [
+	  94,
+	  28,
+	  3,
+	  3
+	]
+  },
+  "chat_bar_bg": {
+	"source_path": "res://assets/ui_alias/chat_bar_bg.png",
+	"rect": [
+	  0,
+	  64,
+	  58,
+	  41
+	]
+  },
+  "chat_input_bg": {
+	"source_path": "res://assets/ui_alias/chat_input_bg.png",
+	"rect": [
+	  0,
+	  98,
+	  50,
+	  7
+	]
+  },
+  "chat_send_btn": {
+	"source_path": "res://assets/ui_alias/chat_send_btn.png",
+	"rect": [
+	  51,
+	  98,
+	  7,
+	  7
+	]
+  },
+  "mic_bg": {
+	"source_path": "res://assets/ui_alias/mic_bg.png",
+	"rect": [
+	  8,
+	  74,
+	  125,
+	  34
+	]
+  },
+  "mic_level_bar": {
+	"source_path": "res://assets/ui_alias/mic_level_bar.png",
+	"rect": [
+	  96,
+	  106,
+	  36,
+	  1
+	]
+  },
+  "mic_button_active": {
+	"source_path": "res://assets/ui_alias/mic_button_active.png",
+	"rect": [
+	  135,
+	  100,
+	  5,
+	  8
+	]
+  },
+  "mic_button_disabled": {
+	"source_path": "res://assets/ui_alias/mic_button_disabled.png",
+	"rect": [
+	  135,
+	  100,
+	  5,
+	  8
+	]
+  },
+  "toolbar_bg": {
+	"source_path": "res://assets/ui_alias/toolbar_bg.png",
+	"rect": [
+	  64,
+	  42,
+	  64,
+	  64
+	]
+  },
+  "toolbar_shadow": {
+	"source_path": "res://assets/ui_alias/toolbar_shadow.png",
+	"rect": [
+	  66,
+	  44,
+	  59,
+	  59
+	]
+  },
+  "settings_toggle": {
+	"source_path": "res://assets/ui_alias/settings_toggle.png",
+	"rect": [
+	  0,
+	  0,
+	  15,
+	  14
+	]
+  },
+  "settings_friends": {
+	"source_path": "res://assets/ui_alias/settings_friends.png",
+	"rect": [
+	  29,
+	  3,
+	  15,
+	  14
+	]
+  },
+  "settings_help": {
+	"source_path": "res://assets/ui_alias/settings_help.png",
+	"rect": [
+	  4,
+	  28,
+	  15,
+	  14
+	]
+  },
+  "settings_kim": {
+	"source_path": "res://assets/ui_alias/settings_kim.png",
+	"rect": [
+	  22,
+	  21,
+	  15,
+	  14
+	]
+  },
+  "settings_game": {
+	"source_path": "res://assets/ui_alias/settings_game.png",
+	"rect": [
+	  17,
+	  1,
+	  11,
+	  10
+	]
+  },
+  "settings_editor": {
+	"source_path": "res://assets/ui_alias/settings_editor.png",
+	"rect": [
+	  13,
+	  12,
+	  11,
+	  10
+	]
+  },
+  "settings_chat": {
+	"source_path": "res://assets/ui_alias/settings_chat.png",
+	"rect": [
+	  1,
+	  16,
+	  11,
+	  10
+	]
+  }
+}

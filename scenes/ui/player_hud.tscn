@@ -10,25 +10,25 @@
 
 [node name="PlayerHUD" type="CanvasLayer"]
 script = ExtResource("1")
-layer = 1
+layer = 10
 
 [node name="RootControl" type="Control" parent="."]
-size = Vector2(192, 108)
+size = Vector2(320, 180)
 mouse_filter = 2
 
 [node name="HPLabel" type="Label" parent="RootControl"]
-offset_left = 138.0
-offset_top = 1.0
-offset_right = 191.0
-offset_bottom = 12.0
-text = "HP 100"
-theme_override_font_sizes/font_size = 6
+offset_left = 220.0
+offset_top = 8.0
+offset_right = 312.0
+offset_bottom = 24.0
+text = "HP 100 / 100"
+horizontal_alignment = 2
 
 [node name="Crosshair" type="TextureRect" parent="RootControl"]
-offset_left = 94.0
-offset_top = 52.0
-offset_right = 98.0
-offset_bottom = 56.0
+offset_left = 159.0
+offset_top = 89.0
+offset_right = 162.0
+offset_bottom = 92.0
 expand_mode = 1
 stretch_mode = 2
 mouse_filter = 2

@@ -72,23 +72,10 @@ func client_send_to_kim(text: String) -> void:
 	if sender_id <= 0:
 		# Host can call this method locally during single-player testing.
 		sender_id = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
 
-	# Proximity check: only route to Kim if player is within interaction range
-	if not _is_player_in_kim_range(sender_id):
-		print("[Server] Player %d sent message but is not in Kim's range — ignored." % sender_id)
-		return
-
-	var kim_core := get_node_or_null("/root/KimCore")
-	if kim_core == null:
-		push_warning("[Server] KimCore autoload is missing.")
-		return
-
-	var personality_module: Node = kim_core.activate_module("personality")
-	if personality_module != null and personality_module.has_method("send_message"):
-		_refresh_profile_from_text(kim_core, sender_id, text)
-		_bind_personality_module(personality_module)
-		_pending_player_id = sender_id
-		personality_module.call("send_message", sender_id, text)
+	_route_text_to_kim(sender_id, text)
 
 
 func send_perception_context_to_kim(player_id: int, perception_context: Dictionary) -> void:
@@ -116,13 +103,16 @@ func send_perception_context_to_kim(player_id: int, perception_context: Dictiona
 
 
 func send_text_to_kim(text: String) -> void:
-	if multiplayer.is_server():
-		client_send_to_kim(text)
-	else:
-		client_send_to_kim.rpc_id(1, text)
+	if _has_active_network_transport():
+		if multiplayer.is_server():
+			client_send_to_kim(text)
+		else:
+			client_send_to_kim.rpc_id(1, text)
+		return
+	_send_text_to_kim_offline(text)
 
 
-# ─── World chat ───────────────────────────────────────────────────────────────
+# ---------------- World chat ----------------
 
 @rpc("any_peer", "call_local", "reliable")
 func client_send_world_message(text: String) -> void:
@@ -131,6 +121,8 @@ func client_send_world_message(text: String) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if sender_id <= 0:
 		sender_id = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
 	server_broadcast_world_message.rpc(sender_id, text)
 	world_message_received.emit(sender_id, text)
 
@@ -141,10 +133,17 @@ func server_broadcast_world_message(sender_id: int, text: String) -> void:
 
 
 func send_world_message(text: String) -> void:
-	if multiplayer.is_server():
-		client_send_world_message(text)
-	else:
-		client_send_world_message.rpc_id(1, text)
+	if _has_active_network_transport():
+		if multiplayer.is_server():
+			client_send_world_message(text)
+		else:
+			client_send_world_message.rpc_id(1, text)
+		return
+
+	var sender_id: int = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
+	world_message_received.emit(sender_id, text)
 
 
 @rpc("authority", "call_remote", "reliable")
@@ -169,15 +168,15 @@ func _bind_personality_module(personality_module: Node) -> void:
 
 
 func _on_personality_response_done(full_text: String) -> void:
-	if not multiplayer.is_server():
-		return
-
 	var target_player := _pending_player_id
 	if target_player <= 0:
 		target_player = multiplayer.get_unique_id()
+	if target_player <= 0:
+		target_player = 1
 
 	kim_response.emit(target_player, full_text)
-	server_send_kim_response.rpc(target_player, full_text)
+	if multiplayer.is_server() and _has_active_network_transport():
+		server_send_kim_response.rpc(target_player, full_text)
 
 
 func _refresh_profile_from_text(kim_core: Node, player_id: int, text: String) -> void:
@@ -202,7 +201,7 @@ func _refresh_profile_from_text(kim_core: Node, player_id: int, text: String) ->
 	personality_module.call("update_player_profile", player_id, profile_patch)
 
 
-# ─── Rating system ────────────────────────────────────────────────────────────
+# ---------------- Rating system ----------------
 
 @rpc("any_peer", "call_local", "reliable")
 func client_rate_game(game_id: String, rating: int) -> void:
@@ -211,6 +210,8 @@ func client_rate_game(game_id: String, rating: int) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if sender_id <= 0:
 		sender_id = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
 	var clamped: int = clampi(rating, 0, 100)
 	var feedback_learner: Node = get_node_or_null("/root/FeedbackLearner")
 	if feedback_learner != null and feedback_learner.has_method("rate_game"):
@@ -226,7 +227,7 @@ func rate_game(game_id: String, rating: int) -> void:
 		client_rate_game.rpc_id(1, game_id, rating)
 
 
-# ─── Teleport (server-authoritative) ─────────────────────────────────────────
+# ---------------- Teleport (server-authoritative) ----------------
 
 func teleport_player(player_id: int, position: Vector3) -> void:
 	if not multiplayer.is_server():
@@ -236,7 +237,7 @@ func teleport_player(player_id: int, position: Vector3) -> void:
 
 @rpc("authority", "call_remote", "reliable")
 func _do_teleport_player(position: Vector3) -> void:
-	# Executed on the client — move local player to position
+	# Executed on the client ? move local player to position.
 	var local_player: Node = _find_local_player_node()
 	if local_player != null and local_player.has_method("set_global_position"):
 		local_player.call("set_global_position", position)
@@ -250,7 +251,7 @@ func _find_local_player_node() -> Node:
 	return null
 
 
-# ─── Proximity helpers ────────────────────────────────────────────────────────
+# ---------------- Proximity helpers ----------------
 
 func register_player_node(player_id: int, player_node: Node3D) -> void:
 	_player_nodes[player_id] = player_node
@@ -266,7 +267,7 @@ func unregister_player_node(player_id: int) -> void:
 func _is_player_in_kim_range(player_id: int) -> bool:
 	_update_avatar_ref()
 	if _kim_avatar == null:
-		# No avatar — allow all messages (single-player / no-avatar fallback)
+		# No avatar ? allow all messages in single-player / no-avatar fallback.
 		return true
 	if _kim_avatar.has_method("is_player_in_interaction_range"):
 		return _kim_avatar.call("is_player_in_interaction_range", player_id)
@@ -276,23 +277,25 @@ func _is_player_in_kim_range(player_id: int) -> bool:
 func _update_avatar_ref() -> void:
 	if _kim_avatar != null and is_instance_valid(_kim_avatar):
 		return
-	# Search for KimAvatar in the scene tree
 	_kim_avatar = _find_node_by_class(get_tree().root, "KimAvatar")
 
 
-func _find_node_by_class(node: Node, class_name_str: String) -> Node:
+func _find_node_by_class(node: Node, _class_name_str: String) -> Node:
 	if node.get_script() != null:
 		var script_path: String = str(node.get_script().resource_path)
 		if script_path.ends_with("kim_avatar.gd"):
 			return node
-	for child in node.get_children():
-		var found: Node = _find_node_by_class(child, class_name_str)
+	for child_variant: Variant in node.get_children():
+		var child: Node = child_variant as Node
+		if child == null:
+			continue
+		var found: Node = _find_node_by_class(child, _class_name_str)
 		if found != null:
 			return found
 	return null
 
 
-# ─── FPS reporting ────────────────────────────────────────────────────────────
+# ---------------- FPS reporting ----------------
 
 @rpc("any_peer", "call_local", "unreliable_ordered")
 func client_report_fps(avg_fps: float, target_fps: float = 60.0, monitor_hz: float = 60.0) -> void:
@@ -301,14 +304,15 @@ func client_report_fps(avg_fps: float, target_fps: float = 60.0, monitor_hz: flo
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if sender_id <= 0:
 		sender_id = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
 	var pm: Node = get_node_or_null("/root/PerformanceManager")
 	if pm != null and pm.has_method("receive_fps_report"):
 		pm.call("receive_fps_report", sender_id, avg_fps, target_fps, monitor_hz)
 
 
-# ─── Optimization vote ────────────────────────────────────────────────────────
+# ---------------- Optimization vote ----------------
 
-# Called by PerformanceManager — sends vote request to a specific client
 func server_request_optimization_vote(target_player_id: int, penalty_id: String, question: String) -> void:
 	if not multiplayer.is_server():
 		return
@@ -317,16 +321,11 @@ func server_request_optimization_vote(target_player_id: int, penalty_id: String,
 
 @rpc("authority", "call_remote", "reliable")
 func _ask_player_optimization_vote(penalty_id: String, question: String) -> void:
-	# Executed on the client. The UI should display question and let player respond.
-	# Emit a signal that the game's UI layer can connect to.
-	print("[Client] Kim's optimization dispute: %s" % question)
-	# Game UI connects to this signal to show a dialog.
-	# Automatic self-vote after a short delay if no UI is connected:
+	print("[Client] Kim optimization dispute: %s" % question)
 	_auto_vote_if_no_ui.call_deferred(penalty_id)
 
 
 func _auto_vote_if_no_ui(penalty_id: String) -> void:
-	# Fallback: if no UI connected, player is assumed to agree after 5 seconds
 	await get_tree().create_timer(5.0).timeout
 	client_vote_on_optimization.rpc_id(1, penalty_id, true)
 
@@ -338,12 +337,13 @@ func client_vote_on_optimization(penalty_id: String, agrees: bool) -> void:
 	var sender_id: int = multiplayer.get_remote_sender_id()
 	if sender_id <= 0:
 		sender_id = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
 	var pm: Node = get_node_or_null("/root/PerformanceManager")
 	if pm != null and pm.has_method("receive_vote"):
 		pm.call("receive_vote", sender_id, penalty_id, agrees)
 
 
-# Called by client UI to manually vote (true = good optimization, false = bad)
 func vote_optimization(penalty_id: String, agrees: bool) -> void:
 	if multiplayer.is_server():
 		client_vote_on_optimization(penalty_id, agrees)
@@ -359,10 +359,54 @@ func _guess_topic_from_text(text: String) -> String:
 		return "ideas"
 	if source.find("help") >= 0:
 		return "support"
-	if source.find("создай") >= 0 or source.find("построй") >= 0 or source.find("сделай") >= 0:
+	if source.find("??????") >= 0 or source.find("???????") >= 0 or source.find("??????") >= 0:
 		return "creation"
-	if source.find("идея") >= 0 or source.find("концепт") >= 0 or source.find("придумай") >= 0:
+	if source.find("????") >= 0 or source.find("???????") >= 0 or source.find("????????") >= 0:
 		return "ideas"
-	if source.find("помоги") >= 0 or source.find("помощь") >= 0:
+	if source.find("??????") >= 0 or source.find("??????") >= 0:
 		return "support"
 	return "general"
+
+
+func is_offline_transport_enabled() -> bool:
+	return not _has_active_network_transport()
+
+
+func get_transport_label() -> String:
+	if _has_active_network_transport():
+		return "Network"
+	return "Offline local"
+
+
+func _has_active_network_transport() -> bool:
+	var peer: MultiplayerPeer = multiplayer.multiplayer_peer
+	if peer == null:
+		return false
+	if multiplayer.is_server():
+		return true
+	return peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
+
+
+func _send_text_to_kim_offline(text: String) -> void:
+	var sender_id: int = multiplayer.get_unique_id()
+	if sender_id <= 0:
+		sender_id = 1
+	_route_text_to_kim(sender_id, text)
+
+
+func _route_text_to_kim(sender_id: int, text: String) -> void:
+	if not _is_player_in_kim_range(sender_id):
+		print("[Local] Player %d sent message but is not in Kim range - ignored." % sender_id)
+		return
+
+	var kim_core := get_node_or_null("/root/KimCore")
+	if kim_core == null:
+		push_warning("[GameServer] KimCore autoload is missing.")
+		return
+
+	var personality_module: Node = kim_core.activate_module("personality")
+	if personality_module != null and personality_module.has_method("send_message"):
+		_refresh_profile_from_text(kim_core, sender_id, text)
+		_bind_personality_module(personality_module)
+		_pending_player_id = sender_id
+		personality_module.call("send_message", sender_id, text)
